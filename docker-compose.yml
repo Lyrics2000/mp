@@ -9,7 +9,7 @@ services:
         volumes:
             - .:/usr/src/britam/payments/app
         ports:
-            - "8000:8000"
+            - "8190:8190"
        
 
   
