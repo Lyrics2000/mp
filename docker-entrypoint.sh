@@ -14,8 +14,8 @@ python ./manage.py migrate --noinput
 
 # Start server
 echo "Starting server"
-# python ./manage.py runserver 0.0.0.0:9000
-gunicorn -b 0.0.0.0 -p 8000 config.asgi:application
+python ./manage.py runserver 0.0.0.0:8000
+# gunicorn -b 0.0.0.0 -p 8000 config.asgi:application
 
 
 
