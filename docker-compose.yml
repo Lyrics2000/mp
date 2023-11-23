@@ -1,0 +1,15 @@
+version: "2"
+   
+services:
+    django_payments:
+        image: django_britam_notification:1.0-staging
+        build: .
+        container_name: django_britam_notification
+        command: ["sh", "./docker-entrypoint.sh"]
+        volumes:
+            - .:/usr/src/britam/payments/app
+        ports:
+            - "8000:8000"
+       
+
+  
