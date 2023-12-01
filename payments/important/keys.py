@@ -14,6 +14,6 @@ CALLBACK_URL = "https://159c-196-41-68-4.ngrok-free.app"
 
 # manual payment 
 
-C2B_SHORTCODE = 600999
+C2B_SHORTCODE = 600981
  
  

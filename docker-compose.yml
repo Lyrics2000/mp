@@ -1,15 +1,51 @@
-version: "2"
-   
+version: '2'
 services:
-    django_payments:
-        image: django_britam_notification:1.0-staging
-        build: .
-        container_name: django_britam_notification
-        command: ["sh", "./docker-entrypoint.sh"]
-        volumes:
-            - .:/usr/src/britam/payments/app
-        ports:
-            - "8190:8190"
-       
+  britam_payment:
+    environment:
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+    build: .
+    depends_on:
+      - db_britam_payment
+      - redis
+    volumes:
+      - ./:/usr/src/britam/payments/app
+    ports:
+      - 8000:8000
+    links:
+      - db_britam_payment
+      - redis
 
-  
+  worker_britam_payment:
+    environment:
+      - DB_NAME=$DB_NAME
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+    build: .
+    command: ./worker.sh
+    depends_on:
+      - db_britam_payment
+      - redis
+    volumes:
+      - ./:/usr/src/britam/payments/app
+    links:
+      - db_britam_payment
+      - redis
+  db_britam_payment:
+    image: postgres:12.3-alpine
+    environment:
+      - POSTGRES_DB=$DB_NAME
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  redis:
+    image: "redis:alpine"
