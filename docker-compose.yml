@@ -1,51 +1,22 @@
 version: '2'
 services:
   britam_payment:
-    environment:
-      - DB_NAME=$DB_NAME
-      - DB_USER=$DB_USER
-      - DB_PASSWORD=$DB_PASSWORD
-      - DB_HOST=$DB_HOST
-      - DB_PORT=$DB_PORT
-      - DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-    build: .
-    depends_on:
-      - db_britam_payment
-      - redis
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: acruksaksbritam3753.azurecr.io/britam_payment_module:1.3
     volumes:
       - ./:/usr/src/britam/payments/app
     ports:
-      - 8000:8000
-    links:
-      - db_britam_payment
-      - redis
+      - 8077:8077
 
-  worker_britam_payment:
-    environment:
-      - DB_NAME=$DB_NAME
-      - DB_USER=$DB_USER
-      - DB_PASSWORD=$DB_PASSWORD
-      - DB_HOST=$DB_HOST
-      - DB_PORT=$DB_PORT
-      - DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-    build: .
-    command: ./worker.sh
-    depends_on:
-      - db_britam_payment
-      - redis
+
+  britam_payment_dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.uat
+    image: acruksaksbritam3753.azurecr.io/britam_payment_module_dev:1.3
     volumes:
       - ./:/usr/src/britam/payments/app
-    links:
-      - db_britam_payment
-      - redis
-  db_britam_payment:
-    image: postgres:12.3-alpine
-    environment:
-      - POSTGRES_DB=$DB_NAME
-      - POSTGRES_PASSWORD=$DB_PASSWORD
-    volumes:
-      - /var/lib/postgresql/data
     ports:
-      - 5432:5432
-  redis:
-    image: "redis:alpine"
+      - 8078:8078

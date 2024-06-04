@@ -313,6 +313,9 @@ class SendSTKPUSH(APIView):
             return isinstance(value, (int, float, complex))
         
         
+        
+        
+        
         if None in [phoneNumber,accountReference,amount,description,is_paybill,paybill,call_back_url]:
             
             return Response({
@@ -344,18 +347,21 @@ class SendSTKPUSH(APIView):
     
         logger.info("there is a test coming")
         
-        call_online_checkout_task.apply_async(
-               kwargs={
-                'phone':phoneNumber,
-                'amount':f'{amount}' ,
-                'paybill':paybill,
-                'account_reference': accountReference,
-                'transaction_desc' : description,
-                'call_back_url':call_back_url,
-                'is_paybil' : is_paybill}
-           ,
-            queue="online_checkout_request",
+        app =   call_online_checkout_task(
+              
+                phone=phoneNumber,
+                amount=f'{amount}' ,
+                paybill=paybill,
+                account_reference=accountReference,
+                transaction_desc=description,
+                call_back_url=call_back_url,
+                is_paybil=is_paybill
+           
+          
         )
+        
+        
+        
         
         # app =  Mpesa().stk_push(
         #         phone=phoneNumber,
@@ -363,11 +369,7 @@ class SendSTKPUSH(APIView):
                 
         #     )
         
-        return Response({
-                "status":"Success",
-                "message":"Mpesa is initiated check your phone for payment",
-                
-            },status=status.HTTP_201_CREATED)
+        return Response(app)
         
         # app = process_online_checkout(
         #     phoneNumber,

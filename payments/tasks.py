@@ -21,7 +21,7 @@ from .mpesa import Mpesa
 logger = logging.getLogger(__name__)
 
 
-@shared_task(name="core.b2c_call")
+# @shared_task(name="core.b2c_call")
 def send_b2c_request_task(amount, phone, id):
     """
     task for send a b2c request
@@ -33,7 +33,7 @@ def send_b2c_request_task(amount, phone, id):
     return send_b2c_request(amount, phone, id)
 
 
-@shared_task(name="core.handle_b2c_call_response")
+# @shared_task(name="core.handle_b2c_call_response")
 def process_b2c_call_response_task(response, id):
     """
     process the request sent back from b2c request
@@ -54,7 +54,7 @@ def process_b2c_call_response_task(response, id):
     rdb.set_trace()
 
 
-@shared_task(name="core.handle_b2c_result_response")
+# @shared_task(name="core.handle_b2c_result_response")
 def process_b2c_result_response_task(response):
     """
     Process b2c result
@@ -109,7 +109,7 @@ def process_b2c_result_response_task(response):
         pass
 
 
-@shared_task(name="core.handle_c2b_validation")
+# @shared_task(name="core.handle_c2b_validation")
 def process_c2b_validation_task(response):
     """
     Handle c2b request
@@ -165,7 +165,7 @@ def process_c2b_validation_task(response):
     C2BRequest.objects.create(**data)
 
 
-@shared_task(name="core.handle_c2b_confirmation")
+# @shared_task(name="core.handle_c2b_confirmation")
 def process_c2b_confirmation_task(response):
     """
     Handle c2b request
@@ -234,7 +234,7 @@ def process_c2b_confirmation_task(response):
         pass
 
 
-@shared_task(name="core.make_online_checkout_call")
+# @shared_task(name="core.make_online_checkout_call")
 def call_online_checkout_task(
     phone, amount,paybill, account_reference, transaction_desc,call_back_url, is_paybil
 ):
@@ -258,44 +258,15 @@ def call_online_checkout_task(
         phone, amount,paybill, account_reference, transaction_desc, is_paybil
     )
     
-    try:
+    logger.info(f" th data is {data}")
     
-        Mpesa.stk_push(
-           phone=phone,
-           amount=amount,
-           account_reference=account_reference,
-           callback_url=call_back_url,
-           merchant_request_id= data['MerchantRequestID'],
-           checkout_request_id= data['CheckoutRequestID'],
-           response_code = data['ResponseCode'],
-           response_description = data['ResponseDescription'],
-           customer_message = data['CustomerMessage'],
-           is_paybill = is_paybil 
-        
-        
-        )
-        
-    except:
-        logger.info(dict(updated_data="there was an error " + f"{data}"))
-    
-        Mpesa.stk_push(
-           phone=phone,
-           amount=amount,
-           account_reference=account_reference,
-           callback_url=call_back_url,
-
-           response_code = "1",
-      
-           is_paybill = is_paybil ,
-      
-        )
-        
+    return data
     
   
 
 
 
-@shared_task(name="core.handle_online_checkout_response")
+# @shared_task(name="core.handle_online_checkout_response")
 def handle_online_checkout_response_task(response, transaction_id):
     """
     Handle checkout response
@@ -312,7 +283,7 @@ def handle_online_checkout_response_task(response, transaction_id):
     )
 
 
-@shared_task(name="core.handle_online_checkout_callback")
+# @shared_task(name="core.handle_online_checkout_callback")
 def handle_online_checkout_callback_task(response):
     """
     Process the callback response

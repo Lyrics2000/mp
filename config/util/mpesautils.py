@@ -1,31 +1,46 @@
 from django.conf import settings
 import base64
 from config.util.http import get
+import requests
+import logging
+logger = logging.getLogger(__name__)
 
 
-def get_token(type,client_ref,client_secret,development):
+def get_token(client_ref,client_secret,development):
     """
     fetch a new token
     :param: type: whether we are fetching token for B2C or C2B
     :return: JSON
     """
     
+    
     # TODO : input real mpesa live url
-    main_url  = "https://sandbox.safaricom.co.ke" if development else ""
+    main_url  = "https://sandbox.safaricom.co.ke" if development else "https://api.safaricom.co.ke"
     url = f"{main_url}/oauth/v1/generate?grant_type=client_credentials"
-    concat_str = "{}:{}".format(
-        client_ref, client_secret
-    )
-    auth_token = encode_str_to_base_64(concat_str)
-    if type.lower() == "b2c":
-        concat_str = "{}:{}".format(
-            client_ref, client_secret
-        )
-        auth_token = encode_str_to_base_64(concat_str)
-    headers = {"Authorization": "Basic {}".format(auth_token)}
-    response = get(url, headers)
-    return response.json()
+    response = requests.request("GET", url, auth=(client_ref,client_secret))
 
+    
+    try:
+        return response.json()['access_token']
+    except:
+        return response.text
+        
+    
+
+# def getAuthToken():
+#         # Set the client credentials
+
+
+#         url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
+
+#         response = requests.request("GET", url, auth=('oGrbf3zHUFzPhrxLT94acL2UQmCQLwq2','lMQYWvur09ADAZSk'))
+
+#         if response.status_code == 200:
+#             return response.json()['access_token']
+        
+#         else:
+#             return None
 
 def encode_str_to_base_64(str_to_encode):
     """
