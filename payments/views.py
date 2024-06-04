@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
+from config.settings.settings import (
+    PAYMENTS_STK_PUSH
+)
 
 from .important.ImportantClasses import (
     LipaNaMpesa,
@@ -301,142 +304,87 @@ class C2BValidationApiView(CreateAPIView):
 
 class SendSTKPUSH(APIView):
     def post(self,request):
-        phoneNumber =  request.data.get("phone",None)
-        accountReference =  request.data.get("account_reference",None)
-        amount =  request.data.get("amount",None)
-        description =   request.data.get("transaction_desc",None)
-        is_paybill = request.data.get("is_paybil",None)
-        paybill =  request.data.get("paybill",None)
-        call_back_url =  request.data.get("call_back_url",None)
+
+        if PAYMENTS_STK_PUSH in request.decoded_token['roles']:
+            phoneNumber =  request.data.get("phone",None)
+            accountReference =  request.data.get("account_reference",None)
+            amount =  request.data.get("amount",None)
+            description =   request.data.get("transaction_desc",None)
+            is_paybill = request.data.get("is_paybil",None)
+            paybill =  request.data.get("paybill",None)
+            call_back_url =  request.data.get("call_back_url",None)
+            
+            def is_numeric(value):
+                return isinstance(value, (int, float, complex))
+            
+            
+            
+            
         
-        def is_numeric(value):
-            return isinstance(value, (int, float, complex))
+            if None in [phoneNumber,accountReference,amount,description,is_paybill,paybill,call_back_url]:
+                
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all details"
+                },status=status.HTTP_400_BAD_REQUEST)
+                
+                
+            
+            if not is_numeric(amount):
+                
+                return Response({
+                    "status":"Failed",
+                    "message":"Incorrect amount format"
+                })
+            
+            
+            if not is_numeric(paybill):
+                return Response({
+                    "status":"Failed",
+                    "message":"Incorrect paybill format"
+                })
+            
+            
+            print("the start iss")
+            dt =  request.data
+            
         
+    
+            logger.info("there is a test coming")
+            
+            app =   call_online_checkout_task(
+                
+                    phone=phoneNumber,
+                    amount=f'{amount}' ,
+                    paybill=paybill,
+                    account_reference=accountReference,
+                    transaction_desc=description,
+                    call_back_url=call_back_url,
+                    is_paybil=is_paybill
+            
+            
+            )
         
-        
-        
-        
-        if None in [phoneNumber,accountReference,amount,description,is_paybill,paybill,call_back_url]:
-            
-            return Response({
-                "status":"Failed",
-                "message":"Fill all details"
-            },status=status.HTTP_400_BAD_REQUEST)
-            
-            
-            
-        if not is_numeric(amount):
-            
-            return Response({
-                "status":"Failed",
-                "message":"Incorrect amount format"
-            })
-            
-            
-        if not is_numeric(paybill):
-            return Response({
-                "status":"Failed",
-                "message":"Incorrect paybill format"
-            })
-            
-            
-        print("the start iss")
-        dt =  request.data
         
      
-    
-        logger.info("there is a test coming")
-        
-        app =   call_online_checkout_task(
-              
-                phone=phoneNumber,
-                amount=f'{amount}' ,
-                paybill=paybill,
-                account_reference=accountReference,
-                transaction_desc=description,
-                call_back_url=call_back_url,
-                is_paybil=is_paybill
-           
-          
-        )
+            return Response(app)
+        else:
+            return Response({
+                "status":"Failed",
+                "message":"U have no rights for this request"
+            },status =  400)
+      
         
         
-        
-        
-        # app =  Mpesa().stk_push(
-        #         phone=phoneNumber,
-                
-                
-        #     )
-        
-        return Response(app)
-        
-        # app = process_online_checkout(
-        #     phoneNumber,
-        #     f'{amount}',
-        #     accountReference,
-        #     description
-            
-        # )
-        
-        
-        
-        
-        # if app['ResponseCode'] == "0":
-            
-        #     print("the data is ", app)
-        #     app =  Mpesa().stk_push(
-        #         phone=phoneNumber,
-        #         amount=amount,
-        #         account_reference=accountReference,
-        #         merchant_request_id=app['MerchantRequestID'],
-        #         response_code=app['ResponseCode'],
-        #         checkout_request_id=app['CheckoutRequestID'],
-        #         is_paybill=is_paybill
-                
-        #     )
+      
             
         
       
         
 
         
-        return Response({
-            "status":"Failed",
-            "message":"Error occured while creating mpesa"
-        },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # app =  LipaNaMpesa(phoneNumber,accountReference,f"{amount}",description)
-        # app1 =  app.lipa_na_mpesa()
-        
-        # print("the ss", app1)
-        
-        
-        # if app1['ResponseCode'] == "0":
-        #     obj =  MpesaRequest.objects.create(
-        #         phoneNumber =  phoneNumber,
-        #         accountReference = accountReference,
-        #         amount =  amount,
-        #         description =  description,
-        #         MerchantRequestID =  app1['MerchantRequestID'],
-        #         CheckoutRequestID =  app1['CheckoutRequestID'],
-        #         ResponseCode =  app1['ResponseCode'],
-        #         ResponseDescription =  app1['ResponseDescription'],
-        #         CustomerMessage =  app1['CustomerMessage']
-        #     )
-        
-        #     print("the app1 ", app1)
-            
-        #     return Response({
-        #         "status":"Success",
-        #         "message":"The payment is initiated"
-        #     },status=status.HTTP_201_CREATED)
-            
-        # return Response({
-        #     "status":"Failed",
-        #     "message":"Failed to initiate mpesa"
-        # },status=status.HTTP_400_BAD_REQUEST)
-        
-        
+      
+
 
 
 class FilterTransaction(APIView):
