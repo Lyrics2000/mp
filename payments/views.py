@@ -55,6 +55,91 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+from .models import (
+    PayBillNumbers
+)
+
+from .serializers import (
+    PayBillNumbersSerializers
+)
+
+
+class AddPaybill(APIView):
+    def post(self,request):
+        try:
+            roles =  request.decoded_token['roles']
+        except:
+            return request.decoded_token
+        roles =  request.decoded_token['roles']
+
+        paybill =  request.data.get("paybill",None)
+        client_ref =  request.data.get("client_ref",None)
+        client_secret =  request.data.get("client_secret",None)
+        developmet =  request.data.get("developmet",None)
+        password = request.data.get("password",None)
+        tyee = request.data.get("type",None)
+
+        if None in [paybill,client_ref,client_secret,developmet,tyee,password]:
+            return Response({
+                "status":"Success",
+                "message":"Fill all details"
+            },status =  400)
+        
+        if tyee == "CREATE":
+        
+            obj = PayBillNumbers.objects.create(
+                paybill = int(paybill),
+                client_ref =  client_ref,
+                client_secret =  client_secret,
+                developmet =  developmet,
+                password = password
+            )
+
+            if obj:
+                return Response({
+                    "status":"Success",
+                    "message":"Data created",
+                    "data": PayBillNumbersSerializers(obj).data
+                },status=201)
+            
+        elif tyee  == "UPDATE":
+            f = PayBillNumbers.objects.filter(
+                paybill =  int(paybill)
+            )
+
+            if len(f) > 0:
+                f[0].client_ref =  client_ref
+                f[0].client_secret =  client_secret
+                f[0].developmet =  developmet
+                f[0].password = password
+                f[0].save()
+
+                return Response({
+                    "status":"Success",
+                    "message":"updated successfully",
+                    "data": PayBillNumbersSerializers(f[0]).data
+                },status=200)
+            
+            else:
+                return Response({
+                    "status":"Failed",
+                    "message":"Paybill not found"
+                },status =  200)
+
+
+
+
+
+        
+        return Response({
+            "status":"Failed",
+            "message":"An error occured"
+        },status =  400)
+
+        
+
+
+
 
 
 class B2cResult(APIView):
@@ -304,8 +389,13 @@ class C2BValidationApiView(CreateAPIView):
 
 class SendSTKPUSH(APIView):
     def post(self,request):
+        try:
+            roles =  request.decoded_token['roles']
+        except:
+            return request.decoded_token
+        roles =  request.decoded_token['roles']
 
-        if PAYMENTS_STK_PUSH in request.decoded_token['roles']:
+        if PAYMENTS_STK_PUSH in roles:
             phoneNumber =  request.data.get("phone",None)
             accountReference =  request.data.get("account_reference",None)
             amount =  request.data.get("amount",None)

@@ -11,6 +11,7 @@ class PayBillNumbers(models.Model):
     paybill =  models.PositiveBigIntegerField(default = 0)
     client_ref =  models.TextField()
     client_secret =  models.TextField()
+    password =  models.TextField(blank=True,null=True)
     developmet =   models.BooleanField(default = True)
     date_added = models.DateTimeField(auto_now_add=True)
 

@@ -35,7 +35,7 @@ class ValidateToken:
             return  JsonResponse({
                  "code":500,
                  "message":f"An Error occured during validation"
-                },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                },status=status.HTTP_400_BAD_REQUEST)
        
         # Decode the token to get the kid (key ID)
         unverified_header = jwt.get_unverified_header(self.token)

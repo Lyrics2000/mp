@@ -3,9 +3,15 @@ from rest_framework import serializers
 from .models import (
     MpesaRequest,
     MpesaCallbackMetaData,
-    C2BPayments
+    C2BPayments,
+    PayBillNumbers
 )
 
+
+class PayBillNumbersSerializers(serializers.ModelSerializer):
+    class Meta:
+        model =  PayBillNumbers
+        fields = '__all__'
 
 class MpesaSerializers(serializers.ModelSerializer):
     class Meta:

@@ -14,13 +14,15 @@ from .views import (
     B2cTimeOut,
     C2bConfirmation,
     C2bValidation,
-    OnlineCheckoutCallback
+    OnlineCheckoutCallback,
+    AddPaybill
     
 )
 
 app_name = "payments"
 
 urlpatterns = [
+    path("add/paybill/",AddPaybill.as_view()),
     path("stk/",SendSTKPUSH.as_view()),
     path("callback/",MpesaCallbackApiView.as_view()),
     path("filter/",FilterTransaction.as_view()),
