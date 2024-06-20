@@ -237,7 +237,7 @@ def process_online_checkout(
         except:
             return {
                 "status":"Failed",
-                "message":"Erro connecting to mpesa"
+                "message":"Error connecting"
             }
         #     return JsonResponse(token, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False)
     

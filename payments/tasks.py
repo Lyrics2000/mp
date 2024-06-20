@@ -251,9 +251,7 @@ def call_online_checkout_task(
     print("thhis has started")
     logger.info(dict(updated_data=f"started mpesa stk push {paybill}"))
     
-    # data =  Mpesa.stk_push(
-        
-    # )
+  
 
     ap =  MpesaRequest.objects.create(
         phoneNumber = phone,
@@ -267,10 +265,16 @@ def call_online_checkout_task(
         CustomerMessage = "CustomerMessage",
         callback_url = call_back_url
     )    
+
+    logger.info(dict(updated_data= f"the data is now as {ap.phoneNumber}"))
+        
+
+    print(f"the data is now as {ap.phoneNumber}")
+    logger.info(f"the data is now as {ap.phoneNumber}")
     
 
     data =  process_online_checkout(
-        phone, amount,paybill, account_reference, transaction_desc, is_paybil ,ap
+        phone, amount,paybill, account_reference, transaction_desc, is_paybil , ap
     )
     
     logger.info(f" th data is {data}")

@@ -77,7 +77,7 @@ class AzureADAuthenticationMiddleware:
                     app = ValidateToken(access_token, audience, role)
                     decoded_token = app.decode_and_verify_token()
                     
-                    print("decoded token ", decoded_token)
+                    # print("decoded token ", decoded_token)
                     request.decoded_token = decoded_token
            
                 except Exception as e:
