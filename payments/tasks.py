@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 
 from decimal import Decimal
+from .models import MpesaRequest
 
 from celery import shared_task
 
@@ -248,14 +249,28 @@ def call_online_checkout_task(
     """
     
     print("thhis has started")
-    logger.info(dict(updated_data="started mpesa stk push"))
+    logger.info(dict(updated_data=f"started mpesa stk push {paybill}"))
     
     # data =  Mpesa.stk_push(
         
     # )
+
+    ap =  MpesaRequest.objects.create(
+        phoneNumber = phone,
+        accountReference = account_reference,
+        amount  = amount,
+        description = transaction_desc,
+        MerchantRequestID = "MerchantRequestID",
+        CheckoutRequestID = "CheckoutRequestID",
+        ResponseCode = "1",
+        ResponseDescription = "ResponseDescription",
+        CustomerMessage = "CustomerMessage",
+        callback_url = call_back_url
+    )    
     
+
     data =  process_online_checkout(
-        phone, amount,paybill, account_reference, transaction_desc, is_paybil
+        phone, amount,paybill, account_reference, transaction_desc, is_paybil ,ap
     )
     
     logger.info(f" th data is {data}")
