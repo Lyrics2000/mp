@@ -304,6 +304,7 @@ def handle_online_checkout_response_task(response, transaction_id):
 
 # @shared_task(name="core.handle_online_checkout_callback")
 def handle_online_checkout_callback_task(response):
+    logger.info(dict(updated_data="callback data began"))
     """
     Process the callback response
     :param response:
@@ -358,6 +359,7 @@ def handle_online_checkout_callback_task(response):
       }
     """
     try:
+        logger.info(dict(updated_data=update_data))
         data = response.get("Body", {}).get("stkCallback", {})
         update_data = dict()
         update_data["result_code"] = data.get("ResultCode", "")
@@ -395,7 +397,8 @@ def handle_online_checkout_callback_task(response):
 
         # save
         OnlineCheckoutResponse.objects.create(**update_data)
-        logger.info(dict(updated_data=update_data))
+        
     except Exception as ex:
+        logger.info(dict(updated_data="error in callback"))
         logger.error(ex)
         raise ValueError(str(ex))

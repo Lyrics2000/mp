@@ -219,8 +219,8 @@ class OnlineCheckoutCallback(APIView):
         :return:
         """
         data = request.data
-        handle_online_checkout_callback_task.apply_async(
-            args=(data,), queue="online_checkout_callback"
+        handle_online_checkout_callback_task(
+            data
         )
         return Response(dict(value="ok", key="status", detail="success"))
 
