@@ -219,9 +219,12 @@ class OnlineCheckoutCallback(APIView):
         :return:
         """
         data = request.data
-        handle_online_checkout_callback_task(
-            data
-        )
+        print("the callback has started...")
+        logger.info(dict(update_info=f"the data is {data}"))
+
+        # handle_online_checkout_callback_task(
+        #     data
+        # )
         return Response(dict(value="ok", key="status", detail="success"))
 
 

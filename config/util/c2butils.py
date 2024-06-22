@@ -226,10 +226,10 @@ def process_online_checkout(
             
         
 
-            background_thread = threading.Thread(target=handleCallback_m, args=(paybill, db,True))
+            # background_thread = threading.Thread(target=handleCallback_m, args=(paybill, db,True))
 
-            # Start the thread
-            background_thread.start()
+            # # Start the thread
+            # background_thread.start()
             
             # handleCallback_m(paybill,db)
             return response.json()
