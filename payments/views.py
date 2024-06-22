@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status 
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
+from .Middleware import MicrosoftValidation
 from config.settings.settings import (
     PAYMENTS_STK_PUSH
 )
@@ -392,13 +393,12 @@ class C2BValidationApiView(CreateAPIView):
 
 class SendSTKPUSH(APIView):
     def post(self,request):
-        try:
-            roles =  request.decoded_token['roles']
-        except:
-            return request.decoded_token
-        roles =  request.decoded_token['roles']
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
 
-        if PAYMENTS_STK_PUSH in roles:
+        if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
             phoneNumber =  request.data.get("phone",None)
             accountReference =  request.data.get("account_reference",None)
             amount =  request.data.get("amount",None)

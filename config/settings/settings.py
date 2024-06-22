@@ -54,6 +54,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+UAT_ENV  =  True
 
 
 
