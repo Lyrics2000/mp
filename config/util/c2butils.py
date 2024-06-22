@@ -191,7 +191,7 @@ def process_online_checkout(
                     PartyB=paybill,
                     
                     PhoneNumber=str(msisdn),
-                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback",
+                    CallBackURL=f"https://brtgw.britam.com/payment/uat/api/v1/callback/",
                     AccountReference=account_reference,
                     TransactionDesc=transaction_desc,
                 )
