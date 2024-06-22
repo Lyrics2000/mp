@@ -57,54 +57,19 @@ def register_c2b_url(client_ref,client_secret,development):
     return response.json()
 
 
-def handleCallback_m(paybill,db,typee):
-    if (int(paybill) == 174379) and typee:
-        time.sleep(30)
+def handleCallback_m(message,db):
+  
         try:
             res =  requests.post(db.callback_url,data = {
-            "Body": 
-            {
-                "stkCallback": 
-                {
-                    "MerchantRequestID": db.MerchantRequestID,
-                    "CheckoutRequestID": db.CheckoutRequestID,
-                    "ResultCode": db.ResponseCode,
-                    "ResultDesc": "The service request is processed successfully.",
-                    "CallbackMetadata": 
-                    {
-                        "Item": 
-                        [
-                            {
-                                "Name": "Amount",
-                                "Value": db.amount
-                            },
-                            {
-                                "Name": "MpesaReceiptNumber",
-                                "Value": "LK451H35OP"
-                            },
-                            {
-                                "Name": "Balance"
-                            },
-                            {
-                                "Name": "TransactionDate",
-                                "Value": 20171104184944
-                            },
-                            {
-                                "Name": "PhoneNumber",
-                                "Value": 254706506361
-                            }
-                        ]
-                    }
-                }
+                 "message":message
             }
-            } )  
+             )  
             db.callback_sent =  True
             db.save()
         except:
             pass
 
-    else:
-        res =  requests.post(db.callback_url,data={})
+    
 
 
         

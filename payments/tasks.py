@@ -2,6 +2,8 @@ from __future__ import absolute_import, unicode_literals
 
 from decimal import Decimal
 from .models import MpesaRequest
+import threading
+from config.util.c2butils import handleCallback_m
 
 from celery import shared_task
 
@@ -402,8 +404,23 @@ def handle_online_checkout_callback_task(response):
                             )
 
             # save
-            OnlineCheckoutResponse.objects.create(**update_data)
+            OnlineCheckoutResponse.objects.create(
+                rdb = all_m[0],
+                merchant_request_id = update_data['merchant_request_id'],
+                checkout_request_id =  update_data['checkout_request_id'],
+                result_code =  update_data['result_code'],
+                result_description =  update_data['result_description'],
+                mpesa_receipt_number =  update_data['mpesa_receipt_number'],
+                transaction_date =  update_data['transaction_date'],
+                phone =  update_data['phone'],
+                amount =  update_data['amount']
+
+            )
             
+            background_thread = threading.Thread(target=handleCallback_m, args=(update_data['result_description'],all_m[0]))
+
+            # Start the thread
+            background_thread.start()
         except Exception as ex:
             logger.info(dict(updated_data="error in callback"))
             logger.error(ex)
