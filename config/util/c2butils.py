@@ -105,21 +105,21 @@ def process_online_checkout(
         development_ss = filter_paybill[0].developmet
         password  = filter_paybill[0].password
         basee_url = getBaseUrl(paybill)
-        
+            
         logger.info(dict(updated_data="The paybill is found"))
-    
         
-        # print("thee keys ",client_ref_ss,client_sec_ss,development_ss)
+            
+            # print("thee keys ",client_ref_ss,client_sec_ss,development_ss)
         logger.info(dict(updated_data= f" thee keys {client_ref_ss} , {client_sec_ss} , {development_ss} , {basee_url} "))
-      
-     
+        
+        
         transaction_type = "CustomerPayBillOnline"
         if not is_paybil:
-            transaction_type = "CustomerBuyGoodsOnline"
+                transaction_type = "CustomerBuyGoodsOnline"
 
         url = f"{basee_url}/mpesa/stkpush/v1/processrequest"
         token = None
-        
+            
         try:
             token =  get_token(client_ref_ss,client_sec_ss,development_ss)
             
@@ -181,12 +181,17 @@ def process_online_checkout(
                 
             js = response.json()
 
-            db.MerchantRequestID = js['MerchantRequestID']
-            db.CheckoutRequestID =  js['CheckoutRequestID']
-            db.ResponseCode =  js['ResponseCode']
-            db.ResponseDescription = js['ResponseDescription']
-            db.CustomerMessage = js['CustomerMessage']
-            db.save()
+            try:
+
+                db.MerchantRequestID = js['MerchantRequestID']
+                db.CheckoutRequestID =  js['CheckoutRequestID']
+                db.ResponseCode =  js['ResponseCode']
+                db.ResponseDescription = js['ResponseDescription']
+                db.CustomerMessage = js['CustomerMessage']
+                db.save()
+
+            except:
+                 pass
 
             
         
@@ -197,13 +202,13 @@ def process_online_checkout(
             # background_thread.start()
             
             # handleCallback_m(paybill,db)
-            return response.json()
+            return  {"code":response.status_code,"message":response.json()}
         
         except:
-            return {
+            return {"code":500,"message": {
                 "status":"Failed",
                 "message":"Error connecting"
-            }
+            }}
         #     return JsonResponse(token, status=status.HTTP_500_INTERNAL_SERVER_ERROR, safe=False)
     
     else:

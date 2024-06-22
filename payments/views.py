@@ -459,7 +459,7 @@ class SendSTKPUSH(APIView):
         
         
      
-            return Response(app)
+            return Response(app['message'],status=app['code'])
         else:
             return Response({
                 "status":"Failed",
