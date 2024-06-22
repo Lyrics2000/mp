@@ -368,7 +368,7 @@ def handle_online_checkout_callback_task(response):
                                         MerchantRequestID =  merch_out )
     
     if len(all_m) > 0:
-        try:
+        # try:
             update_data = dict()
             update_data["result_code"] = data.get("ResultCode", "")
             update_data["result_description"] = data.get("ResultDesc", "")
@@ -421,10 +421,10 @@ def handle_online_checkout_callback_task(response):
 
             # Start the thread
             background_thread.start()
-        except Exception as ex:
-            logger.info(dict(updated_data="error in callback"))
-            logger.error(ex)
-            raise ValueError(str(ex))
+        # except Exception as ex:
+        #     logger.info(dict(updated_data="error in callback"))
+        #     logger.error(ex)
+        #     raise ValueError(str(ex))
     else:
         pass
         
