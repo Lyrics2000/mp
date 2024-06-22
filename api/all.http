@@ -1,4 +1,4 @@
-POST  http://127.0.0.1:8077/api/v1/c2b/online_checkout/callback
+POST  http://172.28.1.36:8077/api/v1/c2b/online_checkout/callback
 Content-Type: application/json
 
  {

@@ -191,7 +191,7 @@ def process_online_checkout(
                     PartyB=paybill,
                     
                     PhoneNumber=str(msisdn),
-                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback",
+                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback/",
                     AccountReference=account_reference,
                     TransactionDesc=transaction_desc,
                 )
@@ -207,7 +207,7 @@ def process_online_checkout(
                     PartyB=paybill,
                     
                     PhoneNumber=str(msisdn),
-                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback",
+                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback/",
                     AccountReference=account_reference,
                     TransactionDesc=transaction_desc,
                 ))

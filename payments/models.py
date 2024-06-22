@@ -278,7 +278,7 @@ class MpesaRequest(TimestampedModel):
     
     
 class MpesaCallbackMetaData(TimestampedModel):
-    rdb =  models.ForeignKey(MpesaRequest,on_delete =  models.CASCADE)
+    rdb =  models.ForeignKey(MpesaRequest,on_delete =  models.CASCADE,blank=True,null=True)
     name =  models.CharField(max_length =  255)
     value =  models.CharField(max_length = 255)
     description =  models.TextField(blank  =  True,null =True)

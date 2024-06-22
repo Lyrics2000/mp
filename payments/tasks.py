@@ -358,47 +358,56 @@ def handle_online_checkout_callback_task(response):
         }
       }
     """
-    try:
-        logger.info(dict(updated_data=update_data))
-        data = response.get("Body", {}).get("stkCallback", {})
-        update_data = dict()
-        update_data["result_code"] = data.get("ResultCode", "")
-        update_data["result_description"] = data.get("ResultDesc", "")
-        update_data["checkout_request_id"] = data.get("CheckoutRequestID", "")
-        update_data["merchant_request_id"] = data.get("MerchantRequestID", "")
+    logger.info(dict(updated_data=response))
+    data = response.get("Body", {}).get("stkCallback", {})
+    check_out =  data.get("CheckoutRequestID", "")
+    merch_out = data.get("MerchantRequestID", "")
+    all_m = MpesaRequest.objects.filter(CheckoutRequestID = check_out, 
+                                        MerchantRequestID =  merch_out )
+    
+    if len(all_m) > 0:
+        try:
+            update_data = dict()
+            update_data["result_code"] = data.get("ResultCode", "")
+            update_data["result_description"] = data.get("ResultDesc", "")
+            update_data["checkout_request_id"] = data.get("CheckoutRequestID", "")
+            update_data["merchant_request_id"] = data.get("MerchantRequestID", "")
 
-        meta_data = data.get("CallbackMetadata", {}).get("Item", {})
-        if len(meta_data) > 0:
-            # handle the meta data
-            for item in meta_data:
-                if len(item.values()) > 1:
-                    key, value = item.values()
-                    if key == "MpesaReceiptNumber":
-                        update_data["mpesa_receipt_number"] = value
-                    if key == "Amount":
-                        update_data["amount"] = Decimal(value)
-                    if key == "PhoneNumber":
-                        update_data["phone"] = int(value)
-                    if key == "TransactionDate":
-                        date = str(value)
-                        year, month, day, hour, min, sec = (
-                            date[:4],
-                            date[4:-8],
-                            date[6:-6],
-                            date[8:-4],
-                            date[10:-2],
-                            date[12:],
-                        )
-                        update_data[
-                            "transaction_date"
-                        ] = "{}-{}-{} {}:{}:{}".format(
-                            year, month, day, hour, min, sec
-                        )
+            meta_data = data.get("CallbackMetadata", {}).get("Item", {})
+            if len(meta_data) > 0:
+                # handle the meta data
+                for item in meta_data:
+                    if len(item.values()) > 1:
+                        key, value = item.values()
+                        if key == "MpesaReceiptNumber":
+                            update_data["mpesa_receipt_number"] = value
+                        if key == "Amount":
+                            update_data["amount"] = Decimal(value)
+                        if key == "PhoneNumber":
+                            update_data["phone"] = int(value)
+                        if key == "TransactionDate":
+                            date = str(value)
+                            year, month, day, hour, min, sec = (
+                                date[:4],
+                                date[4:-8],
+                                date[6:-6],
+                                date[8:-4],
+                                date[10:-2],
+                                date[12:],
+                            )
+                            update_data[
+                                "transaction_date"
+                            ] = "{}-{}-{} {}:{}:{}".format(
+                                year, month, day, hour, min, sec
+                            )
 
-        # save
-        OnlineCheckoutResponse.objects.create(**update_data)
+            # save
+            OnlineCheckoutResponse.objects.create(**update_data)
+            
+        except Exception as ex:
+            logger.info(dict(updated_data="error in callback"))
+            logger.error(ex)
+            raise ValueError(str(ex))
+    else:
+        pass
         
-    except Exception as ex:
-        logger.info(dict(updated_data="error in callback"))
-        logger.error(ex)
-        raise ValueError(str(ex))
