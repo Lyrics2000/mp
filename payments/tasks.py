@@ -417,7 +417,23 @@ def handle_online_checkout_callback_task(response):
                     amount =  update_data['amount']
 
                 )
+
+                if int(update_data['result_code']) == 0:
+                    all_m[0].paid = "PAID"
+                    all_m[0].save()
+
+                else:
+                    all_m[0].paid = "CANCELLED"
+                    all_m[0].save()
+
             except:
+                if int(update_data['result_code']) == 0:
+                    all_m[0].paid = "PAID"
+                    all_m[0].save()
+
+                else:
+                    all_m[0].paid = "CANCELLED"
+                    all_m[0].save()
                 OnlineCheckoutResponse.objects.create(
                     rdb = all_m[0],
                     merchant_request_id = update_data['merchant_request_id'],

@@ -227,6 +227,7 @@ class MpesaRequest(TimestampedModel):
         ('PENDING', 'PENDING'),
         ('PAID', 'PAID'),
         ('CANCELLED', 'CANCELLED'),
+      
     )
     phoneNumber =  models.CharField(max_length =  255)
     accountReference =  models.TextField()

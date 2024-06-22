@@ -7,7 +7,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from .Middleware import MicrosoftValidation
 from config.settings.settings import (
-    PAYMENTS_STK_PUSH
+    PAYMENTS_STK_PUSH,
+    PAYMENT_QUERY_STK_PUSH
 )
 
 from .important.ImportantClasses import (
@@ -45,7 +46,8 @@ from .tasks import (
 )
 
 from config.util.c2butils import (
-    process_online_checkout
+    process_online_checkout,
+    query_stk
 )
 
 from .mpesa import (
@@ -63,6 +65,36 @@ from .models import (
 from .serializers import (
     PayBillNumbersSerializers
 )
+
+
+class QueryMpesaStatement(APIView):
+    def post(self,request):
+
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+
+        if PAYMENT_QUERY_STK_PUSH in app.json()['data']['roles']:
+            check_out_id =  request.data.get("check_out_id",None)
+            paybill  = request.data.get("paybill",None)
+
+            if None in [check_out_id,paybill]:
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all details"
+                },status=400)
+            
+            app =  query_stk(check_out_id,paybill)
+
+            return Response(app['message'],status=app['code'])
+
+
+        else:
+            return Response({
+                "status":"Failed",
+                "message":"U have no rights for this request"
+            },status =  400)
 
 
 class AddPaybill(APIView):
