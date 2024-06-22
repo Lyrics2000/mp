@@ -404,18 +404,30 @@ def handle_online_checkout_callback_task(response):
                             )
 
             # save
-            OnlineCheckoutResponse.objects.create(
-                rdb = all_m[0],
-                merchant_request_id = update_data['merchant_request_id'],
-                checkout_request_id =  update_data['checkout_request_id'],
-                result_code =  update_data['result_code'],
-                result_description =  update_data['result_description'],
-                mpesa_receipt_number =  update_data['mpesa_receipt_number'],
-                transaction_date =  update_data['transaction_date'],
-                phone =  update_data['phone'],
-                amount =  update_data['amount']
+            try:
+                OnlineCheckoutResponse.objects.create(
+                    rdb = all_m[0],
+                    merchant_request_id = update_data['merchant_request_id'],
+                    checkout_request_id =  update_data['checkout_request_id'],
+                    result_code =  update_data['result_code'],
+                    result_description =  update_data['result_description'],
+                    mpesa_receipt_number =  update_data['mpesa_receipt_number'],
+                    transaction_date =  update_data['transaction_date'],
+                    phone =  update_data['phone'],
+                    amount =  update_data['amount']
 
-            )
+                )
+            except:
+                OnlineCheckoutResponse.objects.create(
+                    rdb = all_m[0],
+                    merchant_request_id = update_data['merchant_request_id'],
+                    checkout_request_id =  update_data['checkout_request_id'],
+                    result_code =  update_data['result_code'],
+                    result_description =  update_data['result_description'],
+               
+
+                )
+
             
             background_thread = threading.Thread(target=handleCallback_m, args=(update_data['result_description'],all_m[0]))
 
