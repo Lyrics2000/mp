@@ -32,7 +32,7 @@ class MicrosoftValidation:
         response = requests.get(url, headers=headers,verify=False)
         
         
-        print("the response is that ", response.json())
+        # print("the response is that ", response.json())
 
         if response.status_code ==  401:
             return JsonResponse(response.json(),status  =  response.status_code)

@@ -67,11 +67,10 @@ from .serializers import (
 
 class AddPaybill(APIView):
     def post(self,request):
-        try:
-            roles =  request.decoded_token['roles']
-        except:
-            return request.decoded_token
-        roles =  request.decoded_token['roles']
+        # app =  MicrosoftValidation(request).verify()
+            
+        # if app.status_code == 401:
+        #         return app
 
         paybill =  request.data.get("paybill",None)
         client_ref =  request.data.get("client_ref",None)
