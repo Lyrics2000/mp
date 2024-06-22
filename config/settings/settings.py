@@ -189,7 +189,9 @@ C2B_RESPONSE_TYPE = config('C2B_RESPONSE_TYPE', default='')
 # https://developer.safaricom.co.ke/lipa-na-m-pesa-online/apis/post/stkpush/v1/processrequest
 
 #replace http://mpesa.ngrok.io/ with your url ow here this app is running
+
 C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://brtgw.britam.com/payment/uat'
+# C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://2bbe-105-163-157-249.ngrok-free.app'
 # The Pass Key provided by Safaricom when you pass UAT's
 # See https://developer.safaricom.co.ke/test_credentials
 C2B_ONLINE_PASSKEY = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
