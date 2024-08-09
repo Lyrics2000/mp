@@ -423,80 +423,159 @@ class C2BValidationApiView(CreateAPIView):
 
 
 class SendSTKPUSH(APIView):
-    def post(self,request):
-        app =  MicrosoftValidation(request).verify()
-            
+    def post(self, request):
+        app = MicrosoftValidation(request).verify()
+
         if app.status_code == 401:
-                return app
+            return app
 
         if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
-            phoneNumber =  request.data.get("phone",None)
-            accountReference =  request.data.get("account_reference",None)
-            amount =  request.data.get("amount",None)
-            description =   request.data.get("transaction_desc",None)
-            is_paybill = request.data.get("is_paybil",None)
-            paybill =  request.data.get("paybill",None)
-            call_back_url =  request.data.get("call_back_url",None)
-            
+            phoneNumber = request.data.get("phone", None)
+            accountReference = request.data.get("account_reference", None)
+            amount = request.data.get("amount", None)
+            description = request.data.get("transaction_desc", None)
+            is_paybill = request.data.get("is_paybil", None)
+            paybill = request.data.get("paybill", None)
+            call_back_url = request.data.get("call_back_url", None)
+
             def is_numeric(value):
                 return isinstance(value, (int, float, complex))
+
+            missing_fields = {}
+            
+            if phoneNumber is None:
+                missing_fields['phone'] = "Phone number is missing"
+            if accountReference is None:
+                missing_fields['account_reference'] = "Account reference is missing"
+            if amount is None:
+                missing_fields['amount'] = "Amount is missing"
+            if description is None:
+                missing_fields['transaction_desc'] = "Transaction description is missing"
+            if is_paybill is None:
+                missing_fields['is_paybil'] = "Is_paybill flag is missing"
+            if paybill is None:
+                missing_fields['paybill'] = "Paybill number is missing"
+            if call_back_url is None:
+                missing_fields['call_back_url'] = "Callback URL is missing"
+
+            if missing_fields:
+                return Response({
+                    "status": "Failed",
+                    "message": "Missing required fields",
+                    "details": missing_fields
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not is_numeric(amount):
+                return Response({
+                    "status": "Failed",
+                    "message": "Incorrect amount format"
+                })
+
+            if not is_numeric(paybill):
+                return Response({
+                    "status": "Failed",
+                    "message": "Incorrect paybill format"
+                })
+
+            print("the start iss")
+            dt = request.data
+
+            logger.info("there is a test coming")
+
+            app = call_online_checkout_task(
+                phone=phoneNumber,
+                amount=f'{amount}',
+                paybill=paybill,
+                account_reference=accountReference,
+                transaction_desc=description,
+                call_back_url=call_back_url,
+                is_paybil=is_paybill
+            )
+
+            return Response(app['message'], status=app['code'])
+        else:
+            return Response({
+                "status": "Failed",
+                "message": "You have no rights for this request"
+            }, status=400)
+
+
+
+# class SendSTKPUSH(APIView):
+#     def post(self,request):
+#         app =  MicrosoftValidation(request).verify()
+            
+#         if app.status_code == 401:
+#                 return app
+
+#         if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
+#             phoneNumber =  request.data.get("phone",None)
+#             accountReference =  request.data.get("account_reference",None)
+#             amount =  request.data.get("amount",None)
+#             description =   request.data.get("transaction_desc",None)
+#             is_paybill = request.data.get("is_paybil",None)
+#             paybill =  request.data.get("paybill",None)
+#             call_back_url =  request.data.get("call_back_url",None)
+            
+#             def is_numeric(value):
+#                 return isinstance(value, (int, float, complex))
             
             
             
             
         
-            if None in [phoneNumber,accountReference,amount,description,is_paybill,paybill,call_back_url]:
+#             if None in [phoneNumber,accountReference,amount,description,is_paybill,paybill,call_back_url]:
                 
-                return Response({
-                    "status":"Failed",
-                    "message":"Fill all details"
-                },status=status.HTTP_400_BAD_REQUEST)
+#                 return Response({
+#                     "status":"Failed",
+#                     "message":"Fill all details"
+#                 },status=status.HTTP_400_BAD_REQUEST)
                 
                 
             
-            if not is_numeric(amount):
+#             if not is_numeric(amount):
                 
-                return Response({
-                    "status":"Failed",
-                    "message":"Incorrect amount format"
-                })
+#                 return Response({
+#                     "status":"Failed",
+#                     "message":"Incorrect amount format"
+#                 })
             
             
-            if not is_numeric(paybill):
-                return Response({
-                    "status":"Failed",
-                    "message":"Incorrect paybill format"
-                })
+#             if not is_numeric(paybill):
+#                 return Response({
+#                     "status":"Failed",
+#                     "message":"Incorrect paybill format"
+#                 })
             
             
-            print("the start iss")
-            dt =  request.data
+#             print("the start iss")
+#             dt =  request.data
             
         
     
-            logger.info("there is a test coming")
+#             logger.info("there is a test coming")
             
-            app =   call_online_checkout_task(
+#             app =   call_online_checkout_task(
                 
-                    phone=phoneNumber,
-                    amount=f'{amount}' ,
-                    paybill=paybill,
-                    account_reference=accountReference,
-                    transaction_desc=description,
-                    call_back_url=call_back_url,
-                    is_paybil=is_paybill
+#                     phone=phoneNumber,
+#                     amount=f'{amount}' ,
+#                     paybill=paybill,
+#                     account_reference=accountReference,
+#                     transaction_desc=description,
+#                     call_back_url=call_back_url,
+#                     is_paybil=is_paybill
             
             
-            )
+#             )
         
         
      
-            return Response(app['message'],status=app['code'])
-        else:
-            return Response({
-                "status":"Failed",
-                "message":"U have no rights for this request"
-            },status =  400)
+#             return Response(app['message'],status=app['code'])
+#         else:
+#             return Response({
+#                 "status":"Failed",
+#                 "message":"U have no rights for this request"
+#             },status =  400)
       
         
         
