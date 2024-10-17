@@ -16,7 +16,8 @@ from .views import (
     C2bValidation,
     OnlineCheckoutCallback,
     AddPaybill,
-    QueryMpesaStatement
+    QueryMpesaStatement,
+    CheckTransactionStatus
     
 )
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path("add/paybill/",AddPaybill.as_view()),
     path("stk/",SendSTKPUSH.as_view()),
     path("stk/query/",QueryMpesaStatement.as_view()),
+    path("check/transaction/status/",CheckTransactionStatus.as_view()),
     path("callback/",MpesaCallbackApiView.as_view()),
     path("filter/",FilterTransaction.as_view()),
     path('validation_url/', C2BValidationApiView.as_view(), name='c2b_validation_url'),

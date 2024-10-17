@@ -4,9 +4,15 @@ from .models import (
     MpesaRequest,
     MpesaCallbackMetaData,
     C2BPayments,
-    PayBillNumbers
+    PayBillNumbers,
+    OnlineCheckoutResponse
 )
 
+
+class OnlineCheckoutResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  OnlineCheckoutResponse
+        fields = '__all__'
 
 class PayBillNumbersSerializers(serializers.ModelSerializer):
     class Meta:

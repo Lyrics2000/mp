@@ -270,7 +270,6 @@ def call_online_checkout_task(
 
     logger.info(dict(updated_data= f"the data is now as {ap.phoneNumber}"))
         
-
     print(f"the data is now as {ap.phoneNumber}")
     logger.info(f"the data is now as {ap.phoneNumber}")
     

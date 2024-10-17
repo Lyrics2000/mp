@@ -8,7 +8,8 @@ from rest_framework.permissions import AllowAny
 from .Middleware import MicrosoftValidation
 from config.settings.settings import (
     PAYMENTS_STK_PUSH,
-    PAYMENT_QUERY_STK_PUSH
+    PAYMENT_QUERY_STK_PUSH,
+    PAYMENT_GET_TRANSACTIONAL_STATUS
 )
 
 from .important.ImportantClasses import (
@@ -16,6 +17,8 @@ from .important.ImportantClasses import (
     format_phone_number
 )
 
+
+from .models import OnlineCheckoutResponse
 
 from .models import (
     MpesaRequest,
@@ -420,6 +423,45 @@ class C2BValidationApiView(CreateAPIView):
 
 
 
+from .serializers import OnlineCheckoutResponseSerializer
+
+class CheckTransactionStatus(APIView):
+    def get(self,request):
+        app = MicrosoftValidation(request).verify()
+
+        if app.status_code == 401:
+            return app
+
+        if PAYMENT_GET_TRANSACTIONAL_STATUS in app.json()['data']['roles']:
+            checkout_id =  request.query_params.get("checkout_id",None)
+            if None in [checkout_id]:
+                return Response({
+                    "status":"Failed",
+                    "message":"Submit correct checkout id"
+                },status =  400)
+            
+            obj =  OnlineCheckoutResponse.objects.filter(checkout_request_id =  checkout_id)
+
+            if len(obj) > 0:
+                return Response({
+                    "status":"Success",
+                    "message":"Retrieved successfully",
+                    "data":OnlineCheckoutResponseSerializer(obj,many =True).data
+                })
+            else:
+                return Response({
+                    "status":"Failed",
+                    "message":"Data with checkout id not found!"
+                },status =  400)
+        else:
+            return Response({
+                "status": "Failed",
+                "message": "You have no rights for this request"
+            }, status=400)
+
+            
+
+        
 
 
 class SendSTKPUSH(APIView):
