@@ -5,6 +5,12 @@ From python:3.10.4
 # Set the working directory
 WORKDIR /usr/src/britam/payments/app
 
+
+RUN mkdir -p /tmp/apt-temp \
+    && chmod 1777 /tmp/apt-temp
+
+# Set TMPDIR to the new directory
+ENV TMPDIR=/tmp/apt-temp
 # Update package lists and install dependencies
 # RUN apt-get update && apt-get install -y libaio1
 RUN apt-get update && apt-get install -y libaio1
