@@ -429,7 +429,7 @@ class CheckTransactionStatus(APIView):
     def get(self,request):
         app = MicrosoftValidation(request).verify()
 
-        if app.status_code == 401:
+        if app.status_code != 200:
             return app
 
         if PAYMENT_GET_TRANSACTIONAL_STATUS in app.json()['data']['roles']:
@@ -468,7 +468,7 @@ class SendSTKPUSH(APIView):
     def post(self, request):
         app = MicrosoftValidation(request).verify()
 
-        if app.status_code == 401:
+        if app.status_code != 200:
             logger.info("the jjs" , app.text)
             return app
 
