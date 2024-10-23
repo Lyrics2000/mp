@@ -469,8 +469,10 @@ class SendSTKPUSH(APIView):
         app = MicrosoftValidation(request).verify()
 
         if app.status_code == 401:
+            logger.info("the jjs" , app.text)
             return app
 
+        logger.info("the jjs2" , app.text)
         if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
             phoneNumber = request.data.get("phone", None)
             accountReference = request.data.get("account_reference", None)
