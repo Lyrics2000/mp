@@ -5,9 +5,9 @@ import requests
 
 class MicrosoftValidation:
     def __init__(self,request):
-        print(request.META)
+        print("The sub key ", request.META.get("HTTP_AUTHORIZATION"))
         self.sub_key = request.META.get('HTTP_OCP_APIM_SUBSCRIPTION_KEY', None)
-        self.token = request.META.get('HTTP_AUTHORIZATION', None)
+        self.token = request.META.get('HTTP_AUTHORIZATION', None) 
         self.baseUrl = "https://brtgw.britam.com"   if UAT_ENV else "http://172.18.0.37:31011"
 
 
