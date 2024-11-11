@@ -65,6 +65,7 @@ def register_c2b_url(client_ref,client_secret,development):
 def handleCallback_m(message,db):
   
         try:
+            logger.info(dict(updated_data=f"sending response in {message}"))
             res =  requests.post(db.callback_url,data = message
              )  
             db.callback_sent =  True

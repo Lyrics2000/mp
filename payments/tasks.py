@@ -359,7 +359,7 @@ def handle_online_checkout_callback_task(response):
         }
       }
     """
-    logger.info(dict(updated_data=response))
+    logger.info(dict(updated_data=f"updated asnser is {response}"))
     data = response.get("Body", {}).get("stkCallback", {})
     check_out =  data.get("CheckoutRequestID", "")
     merch_out = data.get("MerchantRequestID", "")
