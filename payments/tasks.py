@@ -452,6 +452,7 @@ def handle_online_checkout_callback_task(response):
                 value = update_data['checkout_request_id'],
                 description = json.dumps(response)
             )
+            
             background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
 
             # Start the thread

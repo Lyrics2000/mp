@@ -262,10 +262,10 @@ class OnlineCheckoutCallback(APIView):
             data
         )
 
-        background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
+        # background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
 
-            # Start the thread
-        background_thread.start()
+        #     # Start the thread
+        # background_thread.start()
         return Response(dict(value="ok", key="status", detail="success"))
 
 
@@ -293,8 +293,7 @@ class C2BConfirmationApiView(CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request):
-        print(request.data, ': Data from Confirmation')
-            
+        print(request.data, ': Data from Confirmation')  
         transaction_time = request.data['TransTime']
         str_transaction_date = str(transaction_time)
         transaction_date = datetime.strptime(str_transaction_date, '%Y%m%d%H%M%S')
@@ -475,10 +474,10 @@ class SendSTKPUSH(APIView):
         app = MicrosoftValidation(request).verify()
 
         if app.status_code != 200:
-            logger.info("the jjs" , app.text)
+            # logger.info("the jjs" , app.text)
             return app
 
-        logger.info("the jjs2" , app.text)
+        # logger.info("the jjs2" , app.text)
         if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
             phoneNumber = request.data.get("phone", None)
             accountReference = request.data.get("account_reference", None)
