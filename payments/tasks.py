@@ -4,6 +4,7 @@ from decimal import Decimal
 from .models import MpesaRequest
 import threading
 from config.util.c2butils import handleCallback_m
+import json
 
 from celery import shared_task
 
@@ -13,6 +14,7 @@ from .models import (
     OnlineCheckout,
     B2CResponse,
     OnlineCheckoutResponse,
+    MpesaCallbackMetaData
 )
 from config.util.c2butils import process_online_checkout
 from config.util.b2cutils import send_b2c_request
@@ -444,6 +446,12 @@ def handle_online_checkout_callback_task(response):
                 )
 
             
+            oooi = MpesaCallbackMetaData.objects.create(
+                rdb = all_m[0],
+                name = update_data['merchant_request_id'],
+                value = update_data['checkout_request_id'],
+                description = json.dumps(response)
+            )
             background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
 
             # Start the thread

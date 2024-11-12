@@ -1,0 +1,15 @@
+logger.info(
+                                dict(
+                    BusinessShortCode=paybill,
+                    Password=password,
+                    Timestamp=timestamp,
+                    TransactionType=transaction_type,
+                    Amount=str(amount),
+                    PartyA=str(msisdn),
+                    PartyB=paybill,
+                    
+                    PhoneNumber=str(msisdn),
+                    CallBackURL=f"{C2B_ONLINE_CHECKOUT_CALLBACK_URL}/api/v1/c2b/online_checkout/callback/",
+                    AccountReference=account_reference,
+                    TransactionDesc=transaction_desc,
+                ))

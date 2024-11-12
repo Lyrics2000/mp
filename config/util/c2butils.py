@@ -18,7 +18,8 @@ from rest_framework import status
 
 from payments.models import (
      MpesaRequest,
-     OnlineCheckoutResponse
+     OnlineCheckoutResponse,
+     MpesaCallbackMetaData
 )
 
 from payments.models import (
@@ -41,6 +42,7 @@ from .configs import (
 from .mpesautils import (
     get_token
 )
+import json
 
 
 def register_c2b_url(client_ref,client_secret,development):
@@ -65,11 +67,22 @@ def register_c2b_url(client_ref,client_secret,development):
 def handleCallback_m(message,db):
   
         try:
-            logger.info(dict(updated_data=f"sending response in {message}"))
-            res =  requests.post(db.callback_url,data = message
-             )  
-            db.callback_sent =  True
-            db.save()
+            get_mm =  MpesaCallbackMetaData.objects.filter(rdb = db)
+            if len(get_mm) > 0:
+                 
+                logger.info(dict(updated_data=f"sending response in {message}"))
+                payload =  json.dumps(json.loads(get_mm[0].description))
+                headers = {
+                'Content-Type': 'application/json',
+              
+                }
+                res =  requests.post(db.callback_url,data = payload,headers=headers
+                )  
+                db.callback_sent =  True
+                db.save()
+            else:
+                 logger.info(dict(updated_data=f"issue sending data {message}"))
+                 
         except:
             pass
 

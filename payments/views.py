@@ -36,10 +36,11 @@ from .serializers import (
     MpesaCallbackMetaDataSerializers,
     C2BPaymentsSerializer
 )
+import threading
 from rest_framework.generics import CreateAPIView
 from datetime import datetime
 import pytz
-
+from config.util.c2butils import handleCallback_m
 from .tasks import (
     process_b2c_result_response_task,
     process_c2b_confirmation_task,
@@ -260,6 +261,11 @@ class OnlineCheckoutCallback(APIView):
         handle_online_checkout_callback_task(
             data
         )
+
+        background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
+
+            # Start the thread
+        background_thread.start()
         return Response(dict(value="ok", key="status", detail="success"))
 
 
