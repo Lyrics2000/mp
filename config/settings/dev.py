@@ -18,8 +18,12 @@ MIDDLEWARE = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+      'ENGINE': 'django.db.backends.oracle',
+        'NAME': 'dwh',
+        'USER': 'tachongo[payment_UAT]',
+        'PASSWORD': 'H#rd2_gu355',
+        'HOST': '172.26.0.47',
+        'PORT': '1521',
     }
 }
 
