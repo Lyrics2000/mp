@@ -293,6 +293,7 @@ class C2BConfirmationApiView(CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request):
+        logger.info(f"the mpesa Confirmation endpoint is  : {request.data}")
         print(request.data, ': Data from Confirmation')  
         transaction_time = request.data['TransTime']
         str_transaction_date = str(transaction_time)
@@ -376,6 +377,7 @@ class C2BValidationApiView(CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request):
+        logger.info(f"the mpesa validation endpoint is  : {request.data}")
         print(request.data, ': Data from Validation')
             
         transaction_time = request.data['TransTime']
