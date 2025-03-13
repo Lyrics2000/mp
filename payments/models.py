@@ -216,6 +216,8 @@ class C2BPaymentsConfirmation(models.Model):
     FirstName = models.CharField(max_length=50, blank=True, null=True)
     MiddleName = models.CharField(max_length=50, blank=True, null=True)
     LastName = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
 
     def __repr__(self):
         return f'{self.InvoiceNumber}'
@@ -235,6 +237,8 @@ class C2BPaymentsValidation(models.Model):
     FirstName = models.CharField(max_length=50, blank=True, null=True)
     MiddleName = models.CharField(max_length=50, blank=True, null=True)
     LastName = models.CharField(max_length=50, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
 
     def __repr__(self):
         return f'{self.InvoiceNumber}'
