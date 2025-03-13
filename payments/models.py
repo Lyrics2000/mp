@@ -202,8 +202,26 @@ class TimestampedModel(models.Model):
 
 # Your other models can now inherit from TimestampedModel
 
+class C2BPaymentsConfirmation(models.Model):
+    TransactionType = models.CharField(max_length=50, blank=True, null=True)
+    TransID = models.CharField(max_length=30, blank=True, null=True)
+    TransTime = models.CharField(max_length=50, blank=True, null=True)
+    TransAmount = models.CharField(max_length=120, blank=True, null=True)
+    BusinessShortCode = models.CharField(max_length=50, blank=True, null=True)
+    BillRefNumber = models.CharField(max_length=120, blank=True, null=True)
+    InvoiceNumber = models.CharField(max_length=120, blank=True, null=True)
+    OrgAccountBalance = models.CharField(max_length=120, blank=True, null=True)
+    ThirdPartyTransID = models.CharField(max_length=120, blank=True, null=True)
+    MSISDN = models.CharField(max_length=25, blank=True, null=True)
+    FirstName = models.CharField(max_length=50, blank=True, null=True)
+    MiddleName = models.CharField(max_length=50, blank=True, null=True)
+    LastName = models.CharField(max_length=50, blank=True, null=True)
 
-class C2BPayments(models.Model):
+    def __repr__(self):
+        return f'{self.InvoiceNumber}'
+
+
+class C2BPaymentsValidation(models.Model):
     TransactionType = models.CharField(max_length=50, blank=True, null=True)
     TransID = models.CharField(max_length=30, blank=True, null=True)
     TransTime = models.CharField(max_length=50, blank=True, null=True)

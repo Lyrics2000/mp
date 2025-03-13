@@ -3,9 +3,10 @@ from rest_framework import serializers
 from .models import (
     MpesaRequest,
     MpesaCallbackMetaData,
-    C2BPayments,
+    C2BPaymentsConfirmation,
     PayBillNumbers,
-    OnlineCheckoutResponse
+    OnlineCheckoutResponse,
+    C2BPaymentsValidation
 )
 
 
@@ -31,23 +32,12 @@ class MpesaCallbackMetaDataSerializers(serializers.ModelSerializer):
         
         
 
-class C2BPaymentsSerializer(serializers.ModelSerializer):
+class C2BPaymentsConfirmationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = C2BPayments
-        fields = (
-            'id',
-            'TransactionType',
-            'TransID',
-            'TransTime',
-            'TransAmount',
-            'BusinessShortCode',
-            'BillRefNumber',
-            'InvoiceNumber',
-            'OrgAccountBalance',
-            'ThirdPartyTransID',
-            'MSISDN',
-            'FirstName',
-            'MiddleName',
-            'LastName',
-            )
-        
+        model = C2BPaymentsConfirmation
+        fields = '__all__'
+
+class C2BPaymentsValidationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = C2BPaymentsValidation
+        fields = '__all__'

@@ -23,7 +23,8 @@ from .models import OnlineCheckoutResponse
 from .models import (
     MpesaRequest,
     MpesaCallbackMetaData,
-    C2BPayments,
+    C2BPaymentsValidation,
+    C2BPaymentsConfirmation,
     AuthToken,
     OnlineCheckout
 )
@@ -34,7 +35,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .serializers import (
    MpesaSerializers,
     MpesaCallbackMetaDataSerializers,
-    C2BPaymentsSerializer
+    C2BPaymentsValidationSerializer,
+    C2BPaymentsConfirmationSerializer
 )
 import threading
 from rest_framework.generics import CreateAPIView
@@ -288,8 +290,8 @@ class B2cTimeOut(APIView):
 
 
 class C2BConfirmationApiView(CreateAPIView):
-    queryset = C2BPayments.objects.all()
-    serializer_class = C2BPaymentsSerializer
+    queryset = C2BPaymentsConfirmation.objects.all()
+    serializer_class = C2BPaymentsConfirmationSerializer
     permission_classes = [AllowAny]
 
 
@@ -318,7 +320,7 @@ class C2BConfirmationApiView(CreateAPIView):
         middle_name = request.data['MiddleName']
         last_name = request.data['LastName']
 
-        c2bmodel_data = C2BPayments.objects.create(
+        c2bmodel_data = C2BPaymentsConfirmation.objects.create(
             TransactionType = transaction_type,
             TransID = transaction_id,
             TransTime = transaction_time,
@@ -335,8 +337,8 @@ class C2BConfirmationApiView(CreateAPIView):
         )
 
         c2bmodel_data.save()
-        c2b_data = C2BPayments.objects.all()
-        data = C2BPaymentsSerializer(c2b_data, many=True)
+        c2b_data = C2BPaymentsConfirmation.objects.all()
+        data = C2BPaymentsConfirmationSerializer(c2b_data, many=True)
         c2b_context = {
             "Result Code": 0,
             "Data": data
@@ -373,8 +375,8 @@ class MakeC2BPaymentApiView(APIView):
             
         
 class C2BValidationApiView(CreateAPIView):
-    queryset = C2BPayments.objects.all()
-    serializer_class = C2BPaymentsSerializer
+    queryset = C2BPaymentsValidation.objects.all()
+    serializer_class = C2BPaymentsValidationSerializer
     permission_classes = [AllowAny]
 
     def create(self, request):
@@ -403,7 +405,7 @@ class C2BValidationApiView(CreateAPIView):
         middle_name = request.data['MiddleName']
         last_name = request.data['LastName']
 
-        c2bmodel_data = C2BPayments.objects.create(
+        c2bmodel_data = C2BPaymentsValidation.objects.create(
             TransactionType = transaction_type,
             TransID = transaction_id,
             TransTime = transaction_time,
@@ -420,8 +422,8 @@ class C2BValidationApiView(CreateAPIView):
         )
 
         c2bmodel_data.save()
-        c2b_data = C2BPayments.objects.all()
-        data = C2BPaymentsSerializer(c2b_data, many=True)
+        c2b_data = C2BPaymentsValidation.objects.all()
+        data = C2BPaymentsValidationSerializer(c2b_data, many=True)
         c2b_context = {
             "Result Code": 0,
             "Data": data
