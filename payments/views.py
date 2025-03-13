@@ -292,6 +292,7 @@ class C2BConfirmationApiView(CreateAPIView):
     serializer_class = C2BPaymentsSerializer
     permission_classes = [AllowAny]
 
+
     def create(self, request):
         logger.info(f"the mpesa Confirmation endpoint is  : {request.data}")
         print(request.data, ': Data from Confirmation')  
