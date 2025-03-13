@@ -341,7 +341,7 @@ class C2BConfirmationApiView(CreateAPIView):
         data = C2BPaymentsConfirmationSerializer(c2b_data, many=True)
         c2b_context = {
             "Result Code": 0,
-            "Data": data
+            "Data": data.data
         }
 
         return Response(c2b_context)
@@ -426,7 +426,7 @@ class C2BValidationApiView(CreateAPIView):
         data = C2BPaymentsValidationSerializer(c2b_data, many=True)
         c2b_context = {
             "Result Code": 0,
-            "Data": data
+            "Data": data.data
         }
 
         return Response(c2b_context)
