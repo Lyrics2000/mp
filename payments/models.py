@@ -200,6 +200,13 @@ class TimestampedModel(models.Model):
     class Meta:
         abstract = True
 
+class Company(TimestampedModel):
+    name = models.CharField(max_length=255)
+    company_code =  models.CharField(max_length=255)
+
+
+    def __str__(self):
+        return self.name
 # Your other models can now inherit from TimestampedModel
 
 class C2BPaymentsConfirmation(models.Model):
@@ -216,8 +223,41 @@ class C2BPaymentsConfirmation(models.Model):
     FirstName = models.CharField(max_length=50, blank=True, null=True)
     MiddleName = models.CharField(max_length=50, blank=True, null=True)
     LastName = models.CharField(max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
+    
+    created_on = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
+
+
+    send_sms = models.BooleanField(default=False)
+    p_flag =  models.PositiveBigIntegerField(default=0)
+    imarika_flag = models.BooleanField(default=False)
+    igas_flag =  models.BooleanField(default=False)
+    sirius_status = models.BooleanField(default=False)
+    intergration_status =  models.CharField(max_length=255,blank=True,null=True)
+    integration_date =  models.DateTimeField(blank=True,null=True)
+    sirius_error_description = models.TextField(blank=True,null=True)
+    company_id = models.ForeignKey(Company,on_delete=models.CASCADE,blank=True,null=True)
+    user_id  =  models.CharField(max_length=255,blank=True,null=True)
+    user_name =  models.CharField(max_length=255,blank=True,null=True)
+    is_from_reconcilliation =  models.BooleanField(default=False)
+    fetch_id = models.CharField(max_length=255,blank=True,null=True)
+    group_id =  models.CharField(max_length=255,blank=True,null=True)
+    pollkava =  models.CharField(max_length=255,blank=True,null=True)
+    kavaflag =  models.CharField(max_length=255,blank=True,null=True)
+    kavaresult =  models.TextField(blank=True,null=True)
+    p_kava =  models.CharField(max_length=255,blank=True,null=True)
+    p_kava_result =  models.TextField(blank=True,null=True)
+    fa_updated_date =  models.DateTimeField(blank=True,null=True)
+    lob_policyNumber =  models.CharField(max_length=255,blank=True,null=True)
+    recon_comment =  models.TextField(blank=True,null=True)
+    is_valid_trans =  models.BooleanField(default=False)
+    p_aims =  models.TextField(blank=True,null=True)
+    aims_result =  models.CharField(max_length=255,blank=True,null=True)
+    cellulant_flag = models.CharField(max_length=255,blank=True,null=True)
+    column2 =  models.TextField(blank=True,null=True)
+    newappflag =  models.BooleanField(default=False)
+    confirmation_status = models.BooleanField(default=False)
+
 
     def __repr__(self):
         return f'{self.InvoiceNumber}'
