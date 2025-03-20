@@ -62,7 +62,7 @@ def register_c2b_url(paybill,response_type):
             token =  get_token(client_ref_ss,client_sec_ss,development_ss)
             
             headers = {
-                    "Authorization": "Bearer {token}",
+                    "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json"
                 }
             logger.info(dict(updated_data=f"Began registering header  for url {headers}"))
