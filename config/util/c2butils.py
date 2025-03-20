@@ -56,19 +56,24 @@ def register_c2b_url(paybill,response_type):
         password  = filter_paybill[0].password
         basee_url = getBaseUrl(paybill)
         url = f"{basee_url}/mpesa/c2b/v1/registerurl"
+        logger.info(dict(updated_data=f"Began registering token for url {url}"))
 
         try:
             token =  get_token(client_ref_ss,client_sec_ss,development_ss)
             
             headers = {
-                    "Authorization": "Bearer {}".format(token)
+                    "Authorization": "Bearer {token}",
+                    "Content-Type": "application/json"
                 }
+            logger.info(dict(updated_data=f"Began registering header  for url {headers}"))
             body = dict(
                 ShortCode=paybill,
                 ResponseType=response_type,
                 ConfirmationURL=C2B_CONFIRMATION_URL,
                 ValidationURL=C2B_VALIDATE_URL,
             )
+
+            logger.info(dict(updated_data=f"Began registering token for url {body}"))
             response = post(url=url, headers=headers, data=body)
             return {
                  "status":"Success",
@@ -135,7 +140,8 @@ def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference
                 token =  get_token(client_ref_ss,client_sec_ss,development_ss)
             
                 headers = {
-                    "Authorization": "Bearer {}".format(token)
+                    "Authorization": "Bearer {}".format(token),
+                    "Content-Type": "application/json"
                 }
                 transaction_type = "CustomerPayBillOnline"
                 if not is_paybill:

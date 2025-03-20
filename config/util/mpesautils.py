@@ -20,11 +20,12 @@ def get_token(client_ref,client_secret,development):
     credentials = f"{client_ref}:{client_secret}"
     encoded_credentials = base64.b64encode(credentials.encode()).decode()
     headers = {
-        "Authorization": f"Basic {encoded_credentials}"
+        "Authorization": f"Basic {encoded_credentials}",
+        "Content-Type": "application/json"
     }
     response = requests.get(url, headers=headers)
     
-    logger.info(dict(updated_data=f"Began generating token"))
+    logger.info(dict(updated_data=f"Began generating token for url {main_url}"))
     
     try:
         tok = response.json()['access_token']
