@@ -17,7 +17,12 @@ def get_token(client_ref,client_secret,development):
     # TODO : input real mpesa live url
     main_url  = "https://sandbox.safaricom.co.ke" if development else "https://api.safaricom.co.ke"
     url = f"{main_url}/oauth/v1/generate?grant_type=client_credentials"
-    response = requests.request("GET", url, auth=(client_ref,client_secret))
+    credentials = f"{client_ref}:{client_secret}"
+    encoded_credentials = base64.b64encode(credentials.encode()).decode()
+    headers = {
+        "Authorization": f"Basic {encoded_credentials}"
+    }
+    response = requests.get(url, headers=headers)
     
     logger.info(dict(updated_data=f"Began generating token"))
     
@@ -26,7 +31,7 @@ def get_token(client_ref,client_secret,development):
         logger.info(dict(updated_data=f"The access token is {tok}"))
         return tok
     except:
-        
+
         res = response.text
         logger.info(dict(updated_data=f"Error generating access toke so response is {res}"))
         return res
