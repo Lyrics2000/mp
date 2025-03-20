@@ -26,6 +26,7 @@ def get_token(client_ref,client_secret,development):
         logger.info(dict(updated_data=f"The access token is {tok}"))
         return tok
     except:
+        
         res = response.text
         logger.info(dict(updated_data=f"Error generating access toke so response is {res}"))
         return res
