@@ -18,12 +18,17 @@ def get_token(client_ref,client_secret,development):
     main_url  = "https://sandbox.safaricom.co.ke" if development else "https://api.safaricom.co.ke"
     url = f"{main_url}/oauth/v1/generate?grant_type=client_credentials"
     response = requests.request("GET", url, auth=(client_ref,client_secret))
-
+    
+    logger.info(dict(updated_data=f"Began generating token"))
     
     try:
-        return response.json()['access_token']
+        tok = response.json()['access_token']
+        logger.info(dict(updated_data=f"The access token is {tok}"))
+        return tok
     except:
-        return response.text
+        res = response.text
+        logger.info(dict(updated_data=f"Error generating access toke so response is {res}"))
+        return res
         
     
 
