@@ -9,7 +9,9 @@ from .Middleware import MicrosoftValidation
 from config.settings.settings import (
     PAYMENTS_STK_PUSH,
     PAYMENT_QUERY_STK_PUSH,
-    PAYMENT_GET_TRANSACTIONAL_STATUS
+    PAYMENT_GET_TRANSACTIONAL_STATUS,
+    PAYMENT_ADD_PAYBILL,
+    PAYMENT_C2B_SIMULATE
 )
 
 from .important.ImportantClasses import (
@@ -53,7 +55,9 @@ from .tasks import (
 
 from config.util.c2butils import (
     process_online_checkout,
-    query_stk
+    query_stk,
+    register_c2b_url,
+    simulate_c2b_transaction
 )
 
 from .mpesa import (
@@ -105,76 +109,82 @@ class QueryMpesaStatement(APIView):
 
 class AddPaybill(APIView):
     def post(self,request):
-        # app =  MicrosoftValidation(request).verify()
+        app =  MicrosoftValidation(request).verify()
             
-        # if app.status_code == 401:
-        #         return app
+        if app.status_code == 401:
+                return app
 
-        paybill =  request.data.get("paybill",None)
-        client_ref =  request.data.get("client_ref",None)
-        client_secret =  request.data.get("client_secret",None)
-        developmet =  request.data.get("developmet",None)
-        password = request.data.get("password",None)
-        tyee = request.data.get("type",None)
+        if PAYMENT_ADD_PAYBILL in app.json()['data']['roles']:
+            paybill =  request.data.get("paybill",None)
+            client_ref =  request.data.get("client_ref",None)
+            client_secret =  request.data.get("client_secret",None)
+            developmet =  request.data.get("developmet",None)
+            password = request.data.get("password",None)
+            tyee = request.data.get("type",None)
 
-        if None in [paybill,client_ref,client_secret,developmet,tyee,password]:
+            if None in [paybill,client_ref,client_secret,developmet,tyee,password]:
+                return Response({
+                    "status":"Success",
+                    "message":"Fill all details"
+                },status =  400)
+            
+            if tyee == "CREATE":
+            
+                obj = PayBillNumbers.objects.create(
+                    paybill = int(paybill),
+                    client_ref =  client_ref,
+                    client_secret =  client_secret,
+                    developmet =  developmet,
+                    password = password
+                )
+
+                if obj:
+                    return Response({
+                        "status":"Success",
+                        "message":"Data created",
+                        "data": PayBillNumbersSerializers(obj).data
+                    },status=201)
+                
+            elif tyee  == "UPDATE":
+                f = PayBillNumbers.objects.filter(
+                    paybill =  int(paybill)
+                )
+
+                if len(f) > 0:
+                    f[0].client_ref =  client_ref
+                    f[0].client_secret =  client_secret
+                    f[0].developmet =  developmet
+                    f[0].password = password
+                    f[0].save()
+
+                    return Response({
+                        "status":"Success",
+                        "message":"updated successfully",
+                        "data": PayBillNumbersSerializers(f[0]).data
+                    },status=200)
+                
+                else:
+                    return Response({
+                        "status":"Failed",
+                        "message":"Paybill not found"
+                    },status =  200)
+
+
+
+
+
+            
             return Response({
-                "status":"Success",
-                "message":"Fill all details"
+                "status":"Failed",
+                "message":"An error occured"
             },status =  400)
-        
-        if tyee == "CREATE":
-        
-            obj = PayBillNumbers.objects.create(
-                paybill = int(paybill),
-                client_ref =  client_ref,
-                client_secret =  client_secret,
-                developmet =  developmet,
-                password = password
-            )
 
-            if obj:
-                return Response({
-                    "status":"Success",
-                    "message":"Data created",
-                    "data": PayBillNumbersSerializers(obj).data
-                },status=201)
-            
-        elif tyee  == "UPDATE":
-            f = PayBillNumbers.objects.filter(
-                paybill =  int(paybill)
-            )
+        else:
+            return Response({
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)
 
-            if len(f) > 0:
-                f[0].client_ref =  client_ref
-                f[0].client_secret =  client_secret
-                f[0].developmet =  developmet
-                f[0].password = password
-                f[0].save()
-
-                return Response({
-                    "status":"Success",
-                    "message":"updated successfully",
-                    "data": PayBillNumbersSerializers(f[0]).data
-                },status=200)
-            
-            else:
-                return Response({
-                    "status":"Failed",
-                    "message":"Paybill not found"
-                },status =  200)
-
-
-
-
-
-        
-        return Response({
-            "status":"Failed",
-            "message":"An error occured"
-        },status =  400)
-
-        
 
 
 
@@ -345,6 +355,100 @@ class C2BConfirmationApiView(CreateAPIView):
         }
 
         return Response(c2b_context)
+
+
+class SimulateApiView(APIView):
+    def post(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+        
+        if PAYMENT_C2B_SIMULATE in app.json()['data']['roles']:
+            paybill = request.data.get("paybill",None)
+            is_paybill =  request.data.get("is_paybill",None),
+            amount =  request.data.get("amount",None)
+            phoneNumber =  request.data.get("phoneNumber",None)
+            bill_reference =  request.data.get("billReference",None)
+
+            def is_numeric(value):
+                        return isinstance(value, (int, float, complex))
+
+
+            if None in [paybill,is_paybill,amount,phoneNumber,bill_reference]:
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all details"
+                },status=400)
+            
+            if not is_numeric(paybill):
+                        return Response({
+                            "status": "Failed",
+                            "message": "Incorrect Paybill format"
+                        })
+            
+            if not is_numeric(amount):
+                        return Response({
+                            "status": "Failed",
+                            "message": "Incorrect Amount format"
+                        })
+            app = simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,bill_reference)
+
+            return Response({
+                    "status":app['status'],
+                    "message":app['message'],
+                    "data":app['data']
+                },status =  app['status_code'])
+
+        else:
+            return Response({
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)
+
+
+class RegisterURL(APIView):
+    def post(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+        
+        if PAYMENT_ADD_PAYBILL in app.json()['data']['roles']:
+            paybill = request.data.get("paybill",None)
+            responseType = request.data.get("responseType",None)
+            
+            def is_numeric(value):
+                    return isinstance(value, (int, float, complex))
+
+            if None in [paybill,responseType]:
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all required details"
+                },status =  400)
+            
+            if not is_numeric(paybill):
+                    return Response({
+                        "status": "Failed",
+                        "message": "Incorrect Paybill format"
+                    })
+
+            # check_paybill = PayBillNumbers.objects.filter(paybill = paybill).first()
+            app = register_c2b_url(paybill,responseType)
+
+            return Response({
+                "status":app['status'],
+                "message":app['message'],
+                "data":app['data']
+            },status =  app['status_code'])
+
+        else:
+            return Response({
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)
+
+
 
 
 class MakeC2BPaymentApiView(APIView):

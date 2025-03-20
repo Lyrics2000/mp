@@ -23,44 +23,15 @@ DATABASES = {
         'PORT': '1521',
     }
 }
+PAYMENTS_STK_PUSH = "PAYMENTS_STK_PUSH"
+PAYMENT_QUERY_STK_PUSH = "PAYMENT_QUERY_STK_PUSH"
+PAYMENT_GET_TRANSACTIONAL_STATUS = "PAYMENT_GET_TRANSACTIONAL_STATUS"
+PAYMENT_ADD_PAYBILL = "PAYMENT_ADD_PAYBILL"
+PAYMENT_C2B_REGISTER = "PAYMENT_C2B_REGISTER_PROD"
+PAYMENT_C2B_SIMULATE  = "PAYMENT_C2B_SIMULATE_PROD"
 
-RegisterClient_ID  = "RegisterClient"
-VerifyIdNo_ID = "VerifyClientByIdNumber"
-VerifyClientByTaxPin_ID = "VerifyClientByKraPin"
-VerifyAgent_ID = "VerifyAgent"
-CheckAimsClientNo_ID = "CheckAimsClientNo"
-GeneratePolicy_ID = "GeneratePolicy"
-GET_PRODUCT_CLASSES =  'VerifyAgent'
-GET_BANK_CODES = 'VerifyAgent'
-GET_BANK_BRANCH_CODES = 'VerifyAgent'
-GET_TITLE = 'VerifyAgent'
-GET_BRANCH_CODE = 'VerifyAgent'
-GET_IDENTITY_TYPE = 'VerifyAgent' # dont share 
-GET_SECTION_GROUP = 'VerifyAgent'
-GET_SECTION_CODES = 'VerifyAgent'
-GET_EXTENTION_CODES = 'VerifyAgent'
-GET_CURRENCY_CODES = 'VerifyAgent'
-GET_CURRENCY_RATES = 'VerifyAgent'
-GET_OCCUPATION_CODES = 'VerifyAgent'
-GET_COUNTRY_CODES = 'VerifyAgent'
-GET_LIMITS_CODES = 'VerifyAgent'
-GET_CLAUSES_CODES = 'VerifyAgent'
-GET_EXCESS_CODES = 'VerifyAgent'
-GET_PERILS_CODES = 'VerifyAgent'
-GET_CAUSE_CODES = 'VerifyAgent'
-GET_TAXES_CODES = 'VerifyAgent'
-GET_ACCESSORY_CODES = 'VerifyAgent'
-GET_ACCESSORY_MAKE_CODES = 'VerifyAgent'
-REINSURANCE = 'VerifyAgent'
-DEBITING = 'VerifyAgent'
-NILL_ENDORSEMENT = 'VerifyAgent'
-RECEIPTING = 'VerifyAgent'
-GET_ALL_AGEENTS = 'VerifyAgent'
-VERIFY_AGENT_BY_PIN = 'VerifyAgent'
-GET_ALL_PORTS = 'VerifyAgent'
-GET_ALL_PARCKET_TYPES = 'VerifyAgent'
-GET_ALL_MARINE_GROUPS = 'VerifyAgent'
-
+C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mp/payment/api/v1/confirmation_url/"
+C2B_VALIDATE_URL = "https://brtgw.britam.com/mp/payment/api/v1/validation_url/"
 
 
 AUDIENCE = "api://2551a6ae-039d-43bb-b05e-8d97d07f15e2"

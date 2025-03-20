@@ -4,9 +4,6 @@ import time
 import threading
 import requests
 from config.settings.settings import (
-    C2B_ONLINE_PASSKEY,
-    C2B_SHORT_CODE,
-    C2B_RESPONSE_TYPE,
     C2B_CONFIRMATION_URL,
     C2B_VALIDATE_URL,
     C2B_ONLINE_CHECKOUT_CALLBACK_URL
@@ -45,24 +42,56 @@ from .mpesautils import (
 import json
 
 
-def register_c2b_url(client_ref,client_secret,development):
+def register_c2b_url(paybill,response_type):
     """
     Register the c2b_url
     :return:
     """
-    url = f"{MPESA_URL}/mpesa/c2b/v1/registerurl"
-    headers = {
-        "Authorization": "Bearer {}".format(AuthToken.objects.get_token("c2b",client_ref,client_secret,development))
-    }
-    body = dict(
-        ShortCode=C2B_SHORT_CODE,
-        ResponseType=C2B_RESPONSE_TYPE,
-        ConfirmationURL=C2B_CONFIRMATION_URL,
-        ValidationURL=C2B_VALIDATE_URL,
-    )
-    response = post(url=url, headers=headers, data=body)
-    return response.json()
+    filter_paybill = PayBillNumbers.objects.filter(paybill = paybill)
+    
+    if len(filter_paybill) > 0:
+        client_ref_ss =  filter_paybill[0].client_ref
+        client_sec_ss = filter_paybill[0].client_secret
+        development_ss = filter_paybill[0].developmet
+        password  = filter_paybill[0].password
+        basee_url = getBaseUrl(paybill)
+        url = f"{basee_url}/mpesa/c2b/v1/registerurl"
 
+        try:
+            token =  get_token(client_ref_ss,client_sec_ss,development_ss)
+            
+            headers = {
+                    "Authorization": "Bearer {}".format(token)
+                }
+            body = dict(
+                ShortCode=paybill,
+                ResponseType=response_type,
+                ConfirmationURL=C2B_CONFIRMATION_URL,
+                ValidationURL=C2B_VALIDATE_URL,
+            )
+            response = post(url=url, headers=headers, data=body)
+            return {
+                 "status":"Success",
+                 "status_code":response.status_code,
+                 "message":"Connected to register Endpoint",
+                 "data":response.json()
+            }
+        
+        except:
+             return {
+                  "status":"Failed",
+                  "status_code":500,
+                  "message":"Error connecting to register",
+                  "data":{}
+             }
+
+    else:
+         return {
+              "status":"Failed",
+              "status_code":400,
+              "message":"Paybill does not exist",
+              "data":{}
+         }
 
 def handleCallback_m(message,db):
   
@@ -91,7 +120,56 @@ def handleCallback_m(message,db):
 
         
 
+def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference):
+        filter_paybill = PayBillNumbers.objects.filter(paybill = paybill)
+    
+        if len(filter_paybill) > 0:
+            client_ref_ss =  filter_paybill[0].client_ref
+            client_sec_ss = filter_paybill[0].client_secret
+            development_ss = filter_paybill[0].developmet
+            password  = filter_paybill[0].password
+            basee_url = getBaseUrl(paybill)
+            api_url = f"{basee_url}/mpesa/c2b/v1/simulate"
 
+            try:
+                token =  get_token(client_ref_ss,client_sec_ss,development_ss)
+            
+                headers = {
+                    "Authorization": "Bearer {}".format(token)
+                }
+                transaction_type = "CustomerPayBillOnline"
+                if not is_paybill:
+                        transaction_type = "CustomerBuyGoodsOnline"
+
+                request = {"ShortCode": paybill,
+                        "CommandID": transaction_type,
+                        "Amount": amount,
+                        "Msisdn": phoneNumber,
+                        "BillRefNumber": billReference}
+
+                response = requests.post(api_url, json=request, headers=headers)
+
+                return {
+                 "status":"Success",
+                    "status_code":response.status_code,
+                    "message":"Connected to simulate Endpoint",
+                    "data":response.json()
+                }
+            except:
+                 return {
+                  "status":"Failed",
+                  "status_code":500,
+                  "message":"Error connecting to register",
+                  "data":{}
+             }
+        
+        else:
+         return {
+              "status":"Failed",
+              "status_code":400,
+              "message":"Paybill does not exist",
+              "data":{}
+         }
 
 def process_online_checkout(
     msisdn: int,

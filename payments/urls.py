@@ -17,7 +17,9 @@ from .views import (
     OnlineCheckoutCallback,
     AddPaybill,
     QueryMpesaStatement,
-    CheckTransactionStatus
+    CheckTransactionStatus,
+    RegisterURL,
+    SimulateApiView
     
 )
 
@@ -35,6 +37,8 @@ urlpatterns = [
     path("c2b_simulate/",MakeC2BPaymentApiView.as_view()),
     path("b2c/timeout/", B2cTimeOut.as_view(), name="b2c_timeout"),
     path("b2c/result/", B2cResult.as_view(), name="b2c_result"),
+    path("c2b/register/url/",RegisterURL.as_view()),
+    path("c2b/simulate/",SimulateApiView.as_view()),
     
      path(
         "c2b/confirmation/", C2bConfirmation.as_view(), name="c2b_confirmation"

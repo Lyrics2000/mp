@@ -70,27 +70,27 @@ else:
 
 
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
-#         },
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 
 # Password validation
@@ -175,11 +175,10 @@ MPESA_C2B_CONSUMER_SECRET = config('MPESA_C2B_CONSUMER_SECRET', default='')
 # Url for registering your paybill replace it the url you get from safaricom after you have passed the UATS
 C2B_REGISTER_URL = config('C2B_REGISTER_URL', default='')
 #ValidationURL
-# replace http://mpesa.ngrok.io/ with your url ow here this app is running
-C2B_VALIDATE_URL = config('C2B_VALIDATE_URL', default='')
+
 #ConfirmationURL
 # replace http://mpesa.ngrok.io/ with your url ow here this app is running
-C2B_CONFIRMATION_URL = config('C2B_CONFIRMATION_URL', default='')
+
 #ShortCode (Paybill)
 C2B_SHORT_CODE = config('C2B_SHORT_CODE', default='')
 #ResponseType
@@ -210,9 +209,5 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
-
-PAYMENTS_STK_PUSH = "PAYMENTS_STK_PUSH"
-PAYMENT_QUERY_STK_PUSH = "PAYMENT_QUERY_STK_PUSH"
-PAYMENT_GET_TRANSACTIONAL_STATUS = "PAYMENT_GET_TRANSACTIONAL_STATUS"
 
 
