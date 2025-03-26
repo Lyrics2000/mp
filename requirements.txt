@@ -25,3 +25,4 @@ python-jose
 celery
 python-decouple
 django-rangefilter
+psycopg2-binary
