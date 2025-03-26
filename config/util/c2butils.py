@@ -315,9 +315,12 @@ def process_online_checkout(
     else:
         logger.info(dict(updated_data=f"The paybill is not found here {paybill}"))
     
+        return {"code":500,"message": {
+                "status":"Failed",
+                "message":"paybill is not found"
+            }}
 
-        return {"status":"Failed",
-                "message":"paybill is not found"}
+       
     
 
 def query_stk(check_out_id,paybill):
