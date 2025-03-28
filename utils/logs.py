@@ -6,6 +6,8 @@ logger = logging.getLogger(__name__)
 url = "http://172.28.1.36:8259/dashboard/add/api/"
 def make_api_request_log_request(data,request):
     # try:
+        logger.info(f"the request is {request}")
+        print("The request is ",request)
         sub_key = request.META.get('HTTP_OCP_APIM_SUBSCRIPTION_KEY', None)
         token = request.META.get('HTTP_AUTHORIZATION', None)
         ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
