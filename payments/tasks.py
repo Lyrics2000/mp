@@ -241,7 +241,7 @@ def process_c2b_confirmation_task(response):
 
 # @shared_task(name="core.make_online_checkout_call")
 def call_online_checkout_task(
-    phone, amount,paybill, account_reference, transaction_desc,call_back_url, is_paybil
+    phone, amount,paybill, account_reference, transaction_desc,call_back_url, is_paybil,role,request,endpoint
 ):
     """
     Handle online checkout request
@@ -277,7 +277,7 @@ def call_online_checkout_task(
     
 
     data =  process_online_checkout(
-        phone, amount,paybill, account_reference, transaction_desc, is_paybil , ap
+        phone, amount,paybill, account_reference, transaction_desc,role,request,endpoint, is_paybil , ap
     )
     
     logger.info(f" th data is {data}")

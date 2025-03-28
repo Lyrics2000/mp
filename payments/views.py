@@ -11,7 +11,9 @@ from config.settings.settings import (
     PAYMENT_QUERY_STK_PUSH,
     PAYMENT_GET_TRANSACTIONAL_STATUS,
     PAYMENT_ADD_PAYBILL,
-    PAYMENT_C2B_SIMULATE
+    PAYMENT_C2B_SIMULATE,
+    PAYMENT_GET_FILTER_MPESA,
+    PAYMENT_REGISTER_URL
 )
 
 from .important.ImportantClasses import (
@@ -76,7 +78,9 @@ from .serializers import (
     PayBillNumbersSerializers
 )
 
-
+from utils.logs import (
+     make_api_request_log_request
+)
 class QueryMpesaStatement(APIView):
     def post(self,request):
 
@@ -95,12 +99,22 @@ class QueryMpesaStatement(APIView):
                     "message":"Fill all details"
                 },status=400)
             
-            app =  query_stk(check_out_id,paybill)
+            app =  query_stk(check_out_id,paybill,PAYMENT_QUERY_STK_PUSH,request,"api/v1/stk/query/")
 
             return Response(app['message'],status=app['code'])
 
 
         else:
+            dddata = {
+                            "role": PAYMENT_QUERY_STK_PUSH,
+                            "successfull": False,
+                            "message": f"User doesnt have rights",
+                            "endpoint": "api/v1/stk/"
+                        }
+            kk = make_api_request_log_request(request,dddata)
+
+            if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
             return Response({
                 "status":"Failed",
                 "message":"U have no rights for this request"
@@ -139,6 +153,15 @@ class AddPaybill(APIView):
                 )
 
                 if obj:
+                    dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": True,
+                            "message": f"Paybill Created successfully!",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                     return Response({
                         "status":"Success",
                         "message":"Data created",
@@ -156,7 +179,15 @@ class AddPaybill(APIView):
                     f[0].developmet =  developmet
                     f[0].password = password
                     f[0].save()
-
+                    dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": True,
+                            "message": f"Paybill Updated successfully!",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                     return Response({
                         "status":"Success",
                         "message":"updated successfully",
@@ -164,6 +195,15 @@ class AddPaybill(APIView):
                     },status=200)
                 
                 else:
+                    dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Paybill {paybill} not found in db",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                     return Response({
                         "status":"Failed",
                         "message":"Paybill not found"
@@ -173,6 +213,15 @@ class AddPaybill(APIView):
 
 
 
+            dddata = {
+                        "role": PAYMENT_ADD_PAYBILL,
+                        "successfull": False,
+                        "message": f"An errror occured while inserting Paybill",
+                        "endpoint": "api/v1/add/paybill/"
+                    }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                return Response(kk['message'],status = kk['code'])
             
             return Response({
                 "status":"Failed",
@@ -180,6 +229,16 @@ class AddPaybill(APIView):
             },status =  400)
 
         else:
+            dddata = {
+                        "role": PAYMENT_ADD_PAYBILL,
+                        "successfull": False,
+                        "message": f"User Doesnt have rights to insert paybill endpoint",
+                        "endpoint": "api/v1/add/paybill/"
+                    }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                return Response(kk['message'],status = kk['code'])
+            
             return Response({
                 "status":"Failed",
                 "message":"You have no rights for this request"
@@ -376,23 +435,50 @@ class SimulateApiView(APIView):
 
 
             if None in [paybill,is_paybill,amount,phoneNumber,bill_reference]:
+                dddata = {
+                            "role": PAYMENT_C2B_SIMULATE,
+                            "successfull": False,
+                            "message": f"Fill all details data needed is ,paybill,is_paybill,amount,phoneNumber,billReference, but data send is {request.data} !",
+                            "endpoint": "api/v1/c2b/simulate/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                 return Response({
                     "status":"Failed",
                     "message":"Fill all details"
                 },status=400)
             
             if not is_numeric(paybill):
+                        dddata = {
+                            "role": PAYMENT_C2B_SIMULATE,
+                            "successfull": False,
+                            "message": f"Invalid Paybill format, paybill should be numeric, paybill supplied is {paybill}!",
+                            "endpoint": "api/v1/c2b/simulate/"
+                        }
+                        kk = make_api_request_log_request(request,dddata)
+                        if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
                         return Response({
                             "status": "Failed",
                             "message": "Incorrect Paybill format"
                         })
             
             if not is_numeric(amount):
+                        dddata = {
+                            "role": PAYMENT_C2B_SIMULATE,
+                            "successfull": False,
+                            "message": f"Invalid amount format, amount should be numeric, amount supplied is {amount}!",
+                            "endpoint": "api/v1/c2b/simulate/"
+                        }
+                        kk = make_api_request_log_request(request,dddata)
+                        if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
                         return Response({
                             "status": "Failed",
                             "message": "Incorrect Amount format"
                         })
-            app = simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,bill_reference)
+            app = simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,bill_reference,PAYMENT_C2B_SIMULATE,request,"api/v1/c2b/simulate/")
 
             return Response({
                     "status":app['status'],
@@ -414,7 +500,7 @@ class RegisterURL(APIView):
         if app.status_code == 401:
                 return app
         
-        if PAYMENT_ADD_PAYBILL in app.json()['data']['roles']:
+        if PAYMENT_REGISTER_URL in app.json()['data']['roles']:
             paybill = request.data.get("paybill",None)
             responseType = request.data.get("responseType",None)
             
@@ -434,7 +520,7 @@ class RegisterURL(APIView):
                     })
 
             # check_paybill = PayBillNumbers.objects.filter(paybill = paybill).first()
-            app = register_c2b_url(paybill,responseType)
+            app = register_c2b_url(paybill,responseType,PAYMENT_REGISTER_URL,request,"api/v1/c2b/register/url/")
 
             return Response({
                 "status":app['status'],
@@ -557,17 +643,44 @@ class CheckTransactionStatus(APIView):
             obj =  OnlineCheckoutResponse.objects.filter(checkout_request_id =  checkout_id)
 
             if len(obj) > 0:
+                dddata = {
+                            "role": PAYMENT_GET_TRANSACTIONAL_STATUS,
+                            "successfull": True,
+                            "message": f"Retrived successfully!",
+                            "endpoint": "api/v1/check/transaction/status/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                 return Response({
                     "status":"Success",
                     "message":"Retrieved successfully",
                     "data":OnlineCheckoutResponseSerializer(obj,many =True).data
                 })
             else:
+                dddata = {
+                            "role": PAYMENT_GET_TRANSACTIONAL_STATUS,
+                            "successfull": False,
+                            "message": f"The data with {checkout_id} not found",
+                            "endpoint": "api/v1/check/transaction/status/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
                 return Response({
                     "status":"Failed",
                     "message":"Data with checkout id not found!"
                 },status =  400)
         else:
+            dddata = {
+                            "role": PAYMENT_GET_TRANSACTIONAL_STATUS,
+                            "successfull": False,
+                            "message": "You have no rights for this request",
+                            "endpoint": "api/v1/check/transaction/status/"
+                        }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
             return Response({
                 "status": "Failed",
                 "message": "You have no rights for this request"
@@ -602,18 +715,81 @@ class SendSTKPUSH(APIView):
             missing_fields = {}
             
             if phoneNumber is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Phone number is missing in body",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['phone'] = "Phone number is missing"
             if accountReference is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Account reference is missing in body",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['account_reference'] = "Account reference is missing"
             if amount is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Amount is missing in body",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['amount'] = "Amount is missing"
             if description is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Transaction description is missing",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['transaction_desc'] = "Transaction description is missing"
             if is_paybill is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Is_paybill flag  is missing",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['is_paybil'] = "Is_paybill flag is missing"
             if paybill is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Paybill number  is missing",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['paybill'] = "Paybill number is missing"
             if call_back_url is None:
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Callback URL is missing",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 missing_fields['call_back_url'] = "Callback URL is missing"
 
             if missing_fields:
@@ -624,12 +800,30 @@ class SendSTKPUSH(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             if not is_numeric(amount):
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Incorrect amount format",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 return Response({
                     "status": "Failed",
                     "message": "Incorrect amount format"
                 })
 
             if not is_numeric(paybill):
+                dddata = {
+                            "role": PAYMENT_ADD_PAYBILL,
+                            "successfull": False,
+                            "message": f"Incorrect paybill format",
+                            "endpoint": "api/v1/add/paybill/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
                 return Response({
                     "status": "Failed",
                     "message": "Incorrect paybill format"
@@ -647,11 +841,22 @@ class SendSTKPUSH(APIView):
                 account_reference=accountReference,
                 transaction_desc=description,
                 call_back_url=call_back_url,
-                is_paybil=is_paybill
+                is_paybil=is_paybill,
+                role=PAYMENTS_STK_PUSH,
+                request=request,
+                endpoint="api/v1/stk/"
+
             )
 
             return Response(app['message'], status=app['code'])
         else:
+            dddata = {
+                            "role": PAYMENTS_STK_PUSH,
+                            "successfull": False,
+                            "message": f"User doesnt have rights",
+                            "endpoint": "api/v1/stk/"
+                        }
+            kk = make_api_request_log_request(request,dddata)
             return Response({
                 "status": "Failed",
                 "message": "You have no rights for this request"
@@ -750,36 +955,66 @@ class SendSTKPUSH(APIView):
 
 class FilterTransaction(APIView):
     def get(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
 
-        phone =  request.query_params.get("Phone",None)
-        
-        if None in [phone]:
+        if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
+            phone =  request.query_params.get("Phone",None)
+            
+            if None in [phone]:
+                dddata = {
+                                "role": PAYMENT_GET_TRANSACTIONAL_STATUS,
+                                "successfull": False,
+                                "message": f"Fill {phone} parameters",
+                                "endpoint": "api/v1/filter/"
+                            }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                                return Response(kk['message'],status = kk['code'])
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all details"
+                },status=status.HTTP_200_OK)
+
+            filek = MpesaRequest.objects.filter(
+                    phoneNumber = phone
+                )
+                
+            mpsac =  MpesaCallbackMetaData.objects.filter(rdb = filek[0])
+            dddata = {
+                                "role": PAYMENT_GET_TRANSACTIONAL_STATUS,
+                                "successfull": True,
+                                "message": f"Data was found and sent",
+                                "endpoint": "api/v1/filter/"
+                            }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                                return Response(kk['message'],status = kk['code'])
+            return Response({
+                "status":"Success",
+                "message":"Data found",
+                "data":{
+                    "transaction":MpesaSerializers(filek[0]).data,
+                    "items":MpesaCallbackMetaDataSerializers(mpsac,many =   True).data
+                }
+            },status=status.HTTP_200_OK)
+
+        else:
+            dddata = {
+                                "role": PAYMENT_GET_FILTER_MPESA,
+                                "successfull": False,
+                                "message": "You have no rights for this request",
+                                "endpoint": "api/v1/filter/"
+                            }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                                return Response(kk['message'],status = kk['code'])
             return Response({
                 "status":"Failed",
-                "message":"Fill all details"
-            },status=status.HTTP_200_OK)
-            
-            
-        
-        
-   
-            
-            
-        filek = MpesaRequest.objects.filter(
-            phoneNumber = phone
-        )
-        
-        mpsac =  MpesaCallbackMetaData.objects.filter(rdb = filek[0])
-        
-        return Response({
-            "status":"Success",
-            "message":"Data found",
-            "data":{
-                "transaction":MpesaSerializers(filek[0]).data,
-                "items":MpesaCallbackMetaDataSerializers(mpsac,many =   True).data
-            }
-        },status=status.HTTP_200_OK)
-            
+                "message":"You have no rights for this request"
+            },status =  400)    
 
 
 

@@ -1,6 +1,7 @@
 import base64
 from datetime import datetime
 import time
+import traceback
 import threading
 import requests
 from config.settings.settings import (
@@ -12,7 +13,9 @@ from payments.models import AuthToken
 from config.util.http import post
 from django.http import JsonResponse
 from rest_framework import status
-
+from utils.logs import (
+     make_api_request_log_request
+)
 from payments.models import (
      MpesaRequest,
      OnlineCheckoutResponse,
@@ -42,7 +45,7 @@ from .mpesautils import (
 import json
 
 
-def register_c2b_url(paybill,response_type):
+def register_c2b_url(paybill,response_type,role,request,endpoint):
     """
     Register the c2b_url
     :return:
@@ -75,15 +78,31 @@ def register_c2b_url(paybill,response_type):
 
             logger.info(dict(updated_data=f"Began registering token for url {body}"))
             response = post(url=url, headers=headers, data=body)
+            jj = response.json()
+            dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Successfully registed the {C2B_CONFIRMATION_URL} and {C2B_VALIDATE_URL} response is {jj}!",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
             return {
                  "status":"Success",
                  "status_code":response.status_code,
                  "message":"Connected to register Endpoint",
-                 "data":response.json()
+                 "data":jj
             }
         
-        except:
-             return {
+        except Exception as e:
+            error_message = traceback.format_exc()
+            dddata = {
+                            "role": role,
+                            "successfull": False,
+                            "message": f"Error connecting to register url {url} error is {error_message} !",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
+            return {
                   "status":"Failed",
                   "status_code":500,
                   "message":"Error connecting to register",
@@ -91,7 +110,15 @@ def register_c2b_url(paybill,response_type):
              }
 
     else:
-         return {
+
+        dddata = {
+                            "role": role,
+                            "successfull": False,
+                            "message": f"Paybill {paybill} does not exist",
+                            "endpoint": endpoint
+                        }
+        kk = make_api_request_log_request(request,dddata)
+        return {
               "status":"Failed",
               "status_code":400,
               "message":"Paybill does not exist",
@@ -125,7 +152,7 @@ def handleCallback_m(message,db):
 
         
 
-def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference):
+def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference,role,request,endpoint):
         filter_paybill = PayBillNumbers.objects.filter(paybill = paybill)
     
         if len(filter_paybill) > 0:
@@ -154,15 +181,33 @@ def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference
                         "BillRefNumber": billReference}
 
                 response = requests.post(api_url, json=request, headers=headers)
+                jj = response.json()
+                dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Simulation was successful, the response is {jj}",
+                            "endpoint": endpoint
+                        }
+                kk = make_api_request_log_request(request,dddata)
 
                 return {
                  "status":"Success",
                     "status_code":response.status_code,
                     "message":"Connected to simulate Endpoint",
-                    "data":response.json()
+                    "data":jj
                 }
-            except:
-                 return {
+            except Exception as e:
+                error_message = traceback.format_exc()
+
+                dddata = {
+                            "role": role,
+                            "successfull": False,
+                            "message": f"Error generating simulation response,error is {error_message} ",
+                            "endpoint": endpoint
+                        }
+                kk = make_api_request_log_request(request,dddata)
+
+                return {
                   "status":"Failed",
                   "status_code":500,
                   "message":"Error connecting to register",
@@ -170,12 +215,20 @@ def simulate_c2b_transaction(paybill,is_paybill,amount,phoneNumber,billReference
              }
         
         else:
-         return {
-              "status":"Failed",
-              "status_code":400,
-              "message":"Paybill does not exist",
-              "data":{}
-         }
+            dddata = {
+                                "role": role,
+                                "successfull": False,
+                                "message": f"Paybill {paybill} does not exist",
+                                "endpoint": endpoint
+                            }
+            kk = make_api_request_log_request(request,dddata)
+
+            return {
+                "status":"Failed",
+                "status_code":400,
+                "message":"Paybill does not exist",
+                "data":{}
+            }
 
 def process_online_checkout(
     msisdn: int,
@@ -183,8 +236,12 @@ def process_online_checkout(
     paybill : int,
     account_reference: str,
     transaction_desc: str,
+    role: str,
+    request,
+    endpoint,
     is_paybil=True,
-    db  =  None
+    db  =  None,
+    
     
 ):
     """
@@ -279,11 +336,27 @@ def process_online_checkout(
                 ))
             response = post(url=url, headers=headers, data=body)
                 
-                
+            
             js = response.json()
+            dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Initiates stk push successfully {js}",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
+            
 
             try:
 
+                dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Saved Response to db Successfully",
+                            "endpoint": endpoint
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                
                 db.MerchantRequestID = js['MerchantRequestID']
                 db.CheckoutRequestID =  js['CheckoutRequestID']
                 db.ResponseCode =  js['ResponseCode']
@@ -305,7 +378,16 @@ def process_online_checkout(
             # handleCallback_m(paybill,db)
             return  {"code":response.status_code,"message":response.json()}
         
-        except:
+        except  Exception as e:
+            error_message = traceback.format_exc()
+            dddata = {
+                            "role": role,
+                            "successfull": False,
+                            "message": f"Error conencting to {url} error {error_message}",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
+            
             return {"code":500,"message": {
                 "status":"Failed",
                 "message":"Error connecting"
@@ -314,7 +396,13 @@ def process_online_checkout(
     
     else:
         logger.info(dict(updated_data=f"The paybill is not found here {paybill}"))
-    
+        dddata = {
+                            "role": role,
+                            "successfull": False,
+                            "message": f"Paybill {paybill} not found",
+                            "endpoint": endpoint
+                        }
+        kk = make_api_request_log_request(request,dddata)
         return {"code":500,"message": {
                 "status":"Failed",
                 "message":"paybill is not found"
@@ -324,7 +412,7 @@ def process_online_checkout(
        
     
 
-def query_stk(check_out_id,paybill):
+def query_stk(check_out_id,paybill,role,request,endpoint):
     logger.info(dict(updated = f"initiated stk query for {check_out_id} {paybill} "))
         
     filter_paybill = PayBillNumbers.objects.filter(paybill = paybill)
@@ -378,6 +466,14 @@ def query_stk(check_out_id,paybill):
             response = requests.post(f'{basee_url}/mpesa/stkpushquery/v1/query', headers = headers, json = payload)
 
             js_ =  response.json()
+            dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Received response {js_} for {check_out_id} {paybill}",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
+
 
             logger.info(dict(updated= f"Received response {js_} for {check_out_id} {paybill}"))
             try:
@@ -423,7 +519,14 @@ def query_stk(check_out_id,paybill):
 
 
             except:
-                 pass
+                dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Could not save  {js_} for {check_out_id} {paybill} to db ",
+                            "endpoint": endpoint
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                pass
 
                          
             
@@ -431,8 +534,17 @@ def query_stk(check_out_id,paybill):
                 "code":response.status_code,
                 "message":js_
             }
-        except:
-             return {
+        except Exception as e:
+            error_message = traceback.format_exc()
+            dddata = {
+                            "role": role,
+                            "successfull": True,
+                            "message": f"Could not get The stk query response error is {error_message}",
+                            "endpoint": endpoint
+                        }
+            kk = make_api_request_log_request(request,dddata)
+
+            return {
                   "code":500,
                   "message":{
                        "status":"Failed",
