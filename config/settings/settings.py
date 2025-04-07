@@ -189,7 +189,7 @@ C2B_RESPONSE_TYPE = config('C2B_RESPONSE_TYPE', default='')
 
 #replace http://mpesa.ngrok.io/ with your url ow here this app is running
 
-C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://brtgw.britam.com/mpesa/payment/uat'
+
 # C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://7fc3-105-163-157-249.ngrok-free.app'
 # The Pass Key provided by Safaricom when you pass UAT's
 # See https://developer.safaricom.co.ke/test_credentials
