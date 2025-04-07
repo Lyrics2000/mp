@@ -39,8 +39,8 @@ PAYMENT_REGISTER_URL = "PAYMENT_REGISTER_URL_UAT"
 C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://brtgw.britam.com/mpesa/payment/uat'
 
 
-C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mp/payment/uat/api/v1/confirmation_url/"
-C2B_VALIDATE_URL = "https://brtgw.britam.com/mp/payment/uat/api/v1/validation_url/"
+C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mpesa/payment/uat/api/v1/confirmation_url/"
+C2B_VALIDATE_URL = "https://brtgw.britam.com/mpesa/payment/uat/api/v1/validation_url/"
 
 
 AUDIENCE = "api://2551a6ae-039d-43bb-b05e-8d97d07f15e2"

@@ -32,7 +32,7 @@ PAYMENT_C2B_SIMULATE  = "PAYMENT_C2B_SIMULATE_PROD"
 PAYMENT_GET_FILTER_MPESA = "PAYMENT_GET_FILTER_MPESA_PROD"
 PAYMENT_REGISTER_URL = "PAYMENT_REGISTER_URL_PROD"
 C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://brtgw.britam.com/payment/uat'
-C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mpesa/payment/api/v1/c2b/online_checkout/callback/"
+C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mpesa/payment/api/v1/confirmation_url/"
 C2B_VALIDATE_URL = "https://brtgw.britam.com/mpesa/payment/api/v1/validation_url/"
 
 
