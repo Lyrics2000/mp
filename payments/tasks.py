@@ -405,45 +405,45 @@ def handle_online_checkout_callback_task(response):
                             )
 
             # save
-            try:
-                OnlineCheckoutResponse.objects.create(
-                    rdb = all_m[0],
-                    merchant_request_id = update_data['merchant_request_id'] if update_data['merchant_request_id'] else None,
-                    checkout_request_id =  update_data['checkout_request_id'] if update_data['checkout_request_id'] else None,
-                    result_code =  update_data['result_code'] if update_data['result_code'] else None,
-                    result_description =  update_data['result_description'] if update_data['result_description'] else None,
-                    mpesa_receipt_number =  update_data['mpesa_receipt_number'] if update_data['mpesa_receipt_number'] else None,
-                    transaction_date =  update_data['transaction_date'] if update_data['transaction_date'] else None,
-                    phone =  update_data['phone'] if update_data['phone'] else None,
-                    amount =  update_data['amount'] if update_data['amount'] else None
 
-                )
+                try:
+                    OnlineCheckoutResponse.objects.create(
+                        rdb = all_m[0],
+                        merchant_request_id = update_data.get('merchant_request_id'),
+                        checkout_request_id = update_data.get('checkout_request_id'),
+                        result_code = update_data.get('result_code'),
+                        result_description = update_data.get('result_description'),
+                        mpesa_receipt_number = update_data.get('mpesa_receipt_number'),
+                        transaction_date = update_data.get('transaction_date'),
+                        phone = update_data.get('phone'),
+                        amount = update_data.get('amount'),
+                    )
 
-                if int(update_data['result_code']) == 0:
-                    all_m[0].paid = "PAID"
-                    all_m[0].save()
+                    try:
+                        if int(update_data.get('result_code', 1)) == 0:
+                            all_m[0].paid = "PAID"
+                        else:
+                            all_m[0].paid = "CANCELLED"
+                        all_m[0].save()
+                    except Exception as e:
+                        logger.exception("Failed to update payment status")
+                        all_m[0].paid = "CANCELLED"
+                        all_m[0].save()
 
-                else:
-                    all_m[0].paid = "CANCELLED"
-                    all_m[0].save()
+                except Exception as e:
+                    logger.exception("Failed to create OnlineCheckoutResponse, creating partial record.")
+                    try:
+                        OnlineCheckoutResponse.objects.create(
+                            rdb = all_m[0],
+                            merchant_request_id = update_data.get('merchant_request_id'),
+                            checkout_request_id = update_data.get('checkout_request_id'),
+                            result_code = update_data.get('result_code'),
+                            result_description = update_data.get('result_description'),
+                            # Ensure all required fields are included or set null=True in model
+                        )
+                    except Exception as e:
+                        logger.exception("Even fallback create failed")
 
-            except:
-                if int(update_data['result_code']) == 0:
-                    all_m[0].paid = "PAID"
-                    all_m[0].save()
-
-                else:
-                    all_m[0].paid = "CANCELLED"
-                    all_m[0].save()
-                OnlineCheckoutResponse.objects.create(
-                    rdb = all_m[0],
-                    merchant_request_id = update_data['merchant_request_id'],
-                    checkout_request_id =  update_data['checkout_request_id'],
-                    result_code =  update_data['result_code'],
-                    result_description =  update_data['result_description'],
-               
-
-                )
 
             
             oooi = MpesaCallbackMetaData.objects.create(
