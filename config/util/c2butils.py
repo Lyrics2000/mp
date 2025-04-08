@@ -534,7 +534,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                 js_['TRANSID'] =  mm.mpesa_receipt_number
                 return {
                     "code": response.status_code,
-                    "message": 
+                    "message": js_
                 }
             else:
                  return {
