@@ -271,6 +271,26 @@ class B2cResult(APIView):
 
 
 
+class RecurringCardsView(APIView):
+    """
+    Handle c2b Confirmation
+    """
+
+    @csrf_exempt
+    def post(self, request, format=None):
+        """
+        process the confirmation
+        :param request:
+        :param format:
+        :return:
+        """
+        data = request.data
+        print("The data is :",data)
+        logger.info(f"The data is {data}")
+        return Response(dict(value="ok", key="status", detail="success"))
+
+
+
 class C2bConfirmation(APIView):
     """
     Handle c2b Confirmation
