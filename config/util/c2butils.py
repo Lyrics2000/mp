@@ -475,7 +475,8 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
             kk = make_api_request_log_request(request,dddata)
 
             mm = {
-                 "TRANSID":""
+                 "TRANSID":"",
+                 "AMOUNT":"",
             }
             logger.info(dict(updated= f"Received response {js_} for {check_out_id} {paybill}"))
             try:
@@ -484,7 +485,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                     if len(obj) > 0:
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         mm =  OnlineCheckoutResponse.objects.create(
+                         K =  OnlineCheckoutResponse.objects.create(
                              rdb =  obj[0],
                              merchant_request_id = obj[0].MerchantRequestID,
                              checkout_request_id = obj[0].CheckoutRequestID,
@@ -492,6 +493,8 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                              result_description = js_['ResultDesc'],
                              amount = obj[0].amount
                          )
+                         mm['TRANSID'] = K.mpesa_receipt_number
+                         mm['AMOUNT'] = K.amount
                          background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
 
                         # Start the thread
@@ -504,7 +507,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                          obj[0].save()
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         mm =  OnlineCheckoutResponse.objects.create(
+                         k =  OnlineCheckoutResponse.objects.create(
                              rdb =  obj[0],
                              merchant_request_id = obj[0].MerchantRequestID,
                              checkout_request_id = obj[0].CheckoutRequestID,
@@ -512,7 +515,8 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                              result_description = js_['ResultDesc'],
                              amount = obj[0].amount
                          )
-
+                         mm['TRANSID'] = K.mpesa_receipt_number
+                         mm['AMOUNT'] = K.amount    
                          background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
 
                         # Start the thread
@@ -533,7 +537,8 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                          
            
             js_['BillRefNumber'] = obj[0].accountReference
-            js_['TRANSID'] =  mm.mpesa_receipt_number
+            js_['TRANSID'] =  mm['TRANSID']
+            js_['AMOUNT'] = mm['AMOUNT']
             return {
                     "code": response.status_code,
                     "message": js_
