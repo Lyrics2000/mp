@@ -489,6 +489,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                          
                              checkout_request_id = obj[0].CheckoutRequestID,
                            
+                           
                          )
                          mm['TRANSID'] = K[0].mpesa_receipt_number
                          mm['AMOUNT'] = K[0].amount
