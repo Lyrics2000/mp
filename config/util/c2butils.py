@@ -485,20 +485,17 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                     if len(obj) > 0:
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         K =  OnlineCheckoutResponse.objects.create(
-                             rdb =  obj[0],
-                             merchant_request_id = obj[0].MerchantRequestID,
+                         K =  OnlineCheckoutResponse.objects.filter(
+                         
                              checkout_request_id = obj[0].CheckoutRequestID,
-                             result_code = js_['ResultCode'],
-                             result_description = js_['ResultDesc'],
-                             amount = obj[0].amount
+                           
                          )
-                         mm['TRANSID'] = K.mpesa_receipt_number
-                         mm['AMOUNT'] = K.amount
-                         background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
+                         mm['TRANSID'] = K[0].mpesa_receipt_number
+                         mm['AMOUNT'] = K[0].amount
+                        #  background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
 
-                        # Start the thread
-                         background_thread.start()
+                        # # Start the thread
+                        #  background_thread.start()
 
                 else:
                     obj =  MpesaRequest.objects.filter(CheckoutRequestID = check_out_id ) 
@@ -507,20 +504,17 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                          obj[0].save()
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         k =  OnlineCheckoutResponse.objects.create(
-                             rdb =  obj[0],
-                             merchant_request_id = obj[0].MerchantRequestID,
+                         K =  OnlineCheckoutResponse.objects.filter(
+                         
                              checkout_request_id = obj[0].CheckoutRequestID,
-                             result_code = js_['ResultCode'],
-                             result_description = js_['ResultDesc'],
-                             amount = obj[0].amount
+                           
                          )
-                         mm['TRANSID'] = K.mpesa_receipt_number
-                         mm['AMOUNT'] = K.amount    
-                         background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
+                         mm['TRANSID'] = K[0].mpesa_receipt_number
+                         mm['AMOUNT'] = K[0].amount    
+                        #  background_thread = threading.Thread(target=handleCallback_m, args=(js_['ResultDesc'],obj[0]))
 
-                        # Start the thread
-                         background_thread.start()
+                        # # Start the thread
+                        #  background_thread.start()
 
 
 
