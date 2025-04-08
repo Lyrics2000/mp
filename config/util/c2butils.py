@@ -529,18 +529,14 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                 pass
 
                          
-            if isinstance(js_, dict):
-                js_['BillRefNumber'] = obj.accountReference
-                js_['TRANSID'] =  mm.mpesa_receipt_number
-                return {
+           
+            js_['BillRefNumber'] = obj.accountReference
+            js_['TRANSID'] =  mm.mpesa_receipt_number
+            return {
                     "code": response.status_code,
                     "message": js_
                 }
-            else:
-                 return {
-                    "code": response.status_code,
-                    "message": js_
-                }
+            
 
         except Exception as e:
             error_message = traceback.format_exc()
