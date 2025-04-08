@@ -482,7 +482,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                     if len(obj) > 0:
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         OnlineCheckoutResponse.objects.create(
+                         mm =  OnlineCheckoutResponse.objects.create(
                              rdb =  obj[0],
                              merchant_request_id = obj[0].MerchantRequestID,
                              checkout_request_id = obj[0].CheckoutRequestID,
@@ -502,7 +502,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                          obj[0].save()
                          obj[0].paid = "PAID"
                          obj[0].save()
-                         OnlineCheckoutResponse.objects.create(
+                         mm =  OnlineCheckoutResponse.objects.create(
                              rdb =  obj[0],
                              merchant_request_id = obj[0].MerchantRequestID,
                              checkout_request_id = obj[0].CheckoutRequestID,
@@ -529,11 +529,19 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                 pass
 
                          
-            
-            return {
-                "code":response.status_code,
-                "message":js_
-            }
+            if isinstance(js_, dict):
+                js_['BillRefNumber'] = obj.accountReference
+                js_['TRANSID'] =  mm.mpesa_receipt_number
+                return {
+                    "code": response.status_code,
+                    "message": 
+                }
+            else:
+                 return {
+                    "code": response.status_code,
+                    "message": js_
+                }
+
         except Exception as e:
             error_message = traceback.format_exc()
             dddata = {
