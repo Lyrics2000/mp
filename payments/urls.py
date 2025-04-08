@@ -40,7 +40,7 @@ urlpatterns = [
     path("b2c/result/", B2cResult.as_view(), name="b2c_result"),
     path("c2b/register/url/",RegisterURL.as_view()),
     path("c2b/simulate/",SimulateApiView.as_view()),
-    path("recurring/card/uat/api/v1/merchant/post/",RecurringCardsView.as_view()),
+    path("merchant/post/",RecurringCardsView.as_view()),
     
      path(
         "c2b/confirmation/", C2bConfirmation.as_view(), name="c2b_confirmation"
