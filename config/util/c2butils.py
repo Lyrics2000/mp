@@ -474,7 +474,9 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                         }
             kk = make_api_request_log_request(request,dddata)
 
-
+            mm = {
+                 "TRANSID":""
+            }
             logger.info(dict(updated= f"Received response {js_} for {check_out_id} {paybill}"))
             try:
                 if int(js_['ResultCode']) == 0:
