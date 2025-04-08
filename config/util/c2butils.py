@@ -537,7 +537,7 @@ def query_stk(check_out_id,paybill,role,request,endpoint):
                     "code": response.status_code,
                     "message": {
                          "extra":{
-                              "BillRefNumber": obj.accountReference,
+                              "BillRefNumber": obj[0].accountReference,
                               "TRANSID" : mm.mpesa_receipt_number 
                          },
                          
