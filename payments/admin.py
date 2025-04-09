@@ -6,7 +6,8 @@ from .models import (
     C2BRequest,
     OnlineCheckout,
     OnlineCheckoutResponse,
-    PayBillNumbers
+    PayBillNumbers,
+    StoreBusinessCode
 )
 
 

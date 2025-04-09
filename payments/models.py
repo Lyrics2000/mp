@@ -314,9 +314,7 @@ class MpesaCallbackMetaData(TimestampedModel):
     name =  models.CharField(max_length =  255)
     value =  models.CharField(max_length = 255)
     description =  models.TextField(blank  =  True,null =True)
-    
-    
-    
+
     def __str__(self) -> str:
         return self.name
     
@@ -347,4 +345,12 @@ class OnlineCheckoutResponse(models.Model):
     class Meta:
         db_table = "tbl_online_checkout_responses"
         verbose_name_plural = "Online Checkout Responses"
+
+
+class StoreBusinessCode(TimestampedModel):
+    name  =  models.CharField(max_length=255)
+    key =  models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 

@@ -20,7 +20,8 @@ from .views import (
     CheckTransactionStatus,
     RegisterURL,
     SimulateApiView,
-    RecurringCardsView
+    RecurringCardsView,
+    CreateBusinessApiView
     
 )
 
@@ -28,6 +29,7 @@ app_name = "payments"
 
 urlpatterns = [
     path("add/paybill/",AddPaybill.as_view()),
+    path("add/business/",CreateBusinessApiView.as_view()),
     path("stk/",SendSTKPUSH.as_view()),
     path("stk/query/",QueryMpesaStatement.as_view()),
     path("check/transaction/status/",CheckTransactionStatus.as_view()),
