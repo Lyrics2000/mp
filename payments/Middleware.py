@@ -1,6 +1,6 @@
 
 from django.http import JsonResponse
-from config.settings.settings import UAT_ENV
+from config.settings.settings import DEBUG
 import requests
 
 class MicrosoftValidation:
@@ -8,7 +8,7 @@ class MicrosoftValidation:
         print("The sub key ", request.META.get("HTTP_AUTHORIZATION"))
         self.sub_key = request.META.get('HTTP_OCP_APIM_SUBSCRIPTION_KEY', None)
         self.token = request.META.get('HTTP_AUTHORIZATION', None) 
-        self.baseUrl = "https://brtgw.britam.com"   if UAT_ENV else "http://172.18.0.37:31011"
+        self.baseUrl = "https://brtgw.britam.com"   if DEBUG else "http://172.18.0.37:31011"
 
 
     

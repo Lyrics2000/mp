@@ -21,7 +21,8 @@ from .views import (
     RegisterURL,
     SimulateApiView,
     RecurringCardsView,
-    CreateBusinessApiView
+    CreateBusinessApiView,
+    SendSTKPUSHBusinessProcess
     
 )
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path("add/paybill/",AddPaybill.as_view()),
     path("add/business/",CreateBusinessApiView.as_view()),
     path("stk/",SendSTKPUSH.as_view()),
+    path("stk/business/",SendSTKPUSHBusinessProcess.as_view()),
     path("stk/query/",QueryMpesaStatement.as_view()),
     path("check/transaction/status/",CheckTransactionStatus.as_view()),
     path("callback/",MpesaCallbackApiView.as_view()),

@@ -14,7 +14,8 @@ from config.settings.settings import (
     PAYMENT_C2B_SIMULATE,
     PAYMENT_GET_FILTER_MPESA,
     PAYMENT_REGISTER_URL,
-    PAYMENT_ADD_BUSINESS
+    PAYMENT_ADD_BUSINESS,
+    PAYMENTS_STK_PUSH_BUSINESS
 )
 
 from .important.ImportantClasses import (
@@ -796,7 +797,8 @@ class SendSTKPUSHBusinessProcess(APIView):
             return app
 
         # logger.info("the jjs2" , app.text)
-        if PAYMENTS_STK_PUSH in app.json()['data']['roles']:
+        if PAYMENTS_STK_PUSH_BUSINESS in app.json()['data']['roles']:
+            business_key = request.data.get("business_key",None)
             phoneNumber = request.data.get("phone", None)
             accountReference = request.data.get("account_reference", None)
             amount = request.data.get("amount", None)
@@ -812,10 +814,10 @@ class SendSTKPUSHBusinessProcess(APIView):
             
             if phoneNumber is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Phone number is missing in body",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -823,10 +825,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['phone'] = "Phone number is missing"
             if accountReference is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Account reference is missing in body",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -834,10 +836,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['account_reference'] = "Account reference is missing"
             if amount is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Amount is missing in body",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -845,10 +847,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['amount'] = "Amount is missing"
             if description is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Transaction description is missing",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -856,10 +858,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['transaction_desc'] = "Transaction description is missing"
             if is_paybill is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Is_paybill flag  is missing",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -867,10 +869,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['is_paybil'] = "Is_paybill flag is missing"
             if paybill is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Paybill number  is missing",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -878,10 +880,10 @@ class SendSTKPUSHBusinessProcess(APIView):
                 missing_fields['paybill'] = "Paybill number is missing"
             if call_back_url is None:
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Callback URL is missing",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -895,12 +897,13 @@ class SendSTKPUSHBusinessProcess(APIView):
                     "details": missing_fields
                 }, status=status.HTTP_400_BAD_REQUEST)
 
+
             if not is_numeric(amount):
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Incorrect amount format",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -912,10 +915,10 @@ class SendSTKPUSHBusinessProcess(APIView):
 
             if not is_numeric(paybill):
                 dddata = {
-                            "role": PAYMENT_ADD_PAYBILL,
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
                             "message": f"Incorrect paybill format",
-                            "endpoint": "api/v1/add/paybill/"
+                            "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
                 if kk['code'] > 204:
@@ -930,21 +933,44 @@ class SendSTKPUSHBusinessProcess(APIView):
 
             logger.info("there is a test coming")
 
-            app = call_online_checkout_task(
-                phone=phoneNumber,
-                amount=f'{amount}',
-                paybill=paybill,
-                account_reference=accountReference,
-                transaction_desc=description,
-                call_back_url=call_back_url,
-                is_paybil=is_paybill,
-                role=PAYMENTS_STK_PUSH,
-                request=request,
-                endpoint="api/v1/stk/"
-
+            check_bis =  StoreBusinessCode.objects.filter(
+                key =  business_key  
             )
 
-            return Response(app['message'], status=app['code'])
+            if len(check_bis) > 0:
+                  pass
+            else:
+                dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": False,
+                            "message": f"No Business Found",
+                            "endpoint": "api/v1/stk/business/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])  
+
+                return Response({
+                      "status":"Failed",
+                      "message":""
+                }) 
+                  
+
+            # app = call_online_checkout_task(
+            #     phone=phoneNumber,
+            #     amount=f'{amount}',
+            #     paybill=paybill,
+            #     account_reference=accountReference,
+            #     transaction_desc=description,
+            #     call_back_url=call_back_url,
+            #     is_paybil=is_paybill,
+            #     role=PAYMENTS_STK_PUSH,
+            #     request=request,
+            #     endpoint="api/v1/stk/"
+
+            # )
+
+            # return Response(app['message'], status=app['code'])
         else:
             dddata = {
                             "role": PAYMENTS_STK_PUSH,
