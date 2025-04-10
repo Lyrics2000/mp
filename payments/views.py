@@ -15,7 +15,8 @@ from config.settings.settings import (
     PAYMENT_GET_FILTER_MPESA,
     PAYMENT_REGISTER_URL,
     PAYMENT_ADD_BUSINESS,
-    PAYMENTS_STK_PUSH_BUSINESS
+    PAYMENTS_STK_PUSH_BUSINESS,
+    PAYMENT_VERIFY_CHECKOUT_ID
 )
 
 from .important.ImportantClasses import (
@@ -988,6 +989,72 @@ class SendSTKPUSHBusinessProcess(APIView):
 
 
 class SendSTKPUSH(APIView):
+    def get(self,request):
+        app = MicrosoftValidation(request).verify()
+
+        if app.status_code != 200:
+            # logger.info("the jjs" , app.text)
+            return app
+
+        # logger.info("the jjs2" , app.text)
+        if PAYMENT_VERIFY_CHECKOUT_ID in app.json()['data']['roles']:
+            checkout_id  = request.query_params.get("checkout_id",None)
+            phone_number =  request.query_params.get("phone_number",None)
+
+            if None in [checkout_id,phone_number]:
+                dddata = {
+                            "role": PAYMENT_VERIFY_CHECKOUT_ID,
+                            "successfull": False,
+                            "message": f"User doesnt have rights",
+                            "endpoint": "api/v1/stk/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                return Response({
+                      "status":"Failed",
+                      "message":"Fill the phone number and checkout id"
+                },status=400)
+          
+            else:
+                ap =  MpesaRequest.objects.filter(
+                        phoneNumber = phone_number,
+                        CheckoutRequestID = checkout_id,
+                    
+                    )
+                dddata = {
+                            "role": PAYMENT_VERIFY_CHECKOUT_ID,
+                            "successfull": True,
+                            "message": f"Successfully retrieved a record",
+                            "endpoint": "api/v1/stk/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                return Response({
+                      "status":"Success",
+                      "message":"Retrived Successfully!!",
+                      "data":MpesaSerializers(
+                            ap,many = True
+                      ).data
+                })
+                
+        
+        else:
+            dddata = {
+                            "role": PAYMENT_VERIFY_CHECKOUT_ID,
+                            "successfull": False,
+                            "message": f"User doesnt have rights",
+                            "endpoint": "api/v1/stk/"
+                        }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
+            return Response({
+                "status": "Failed",
+                "message": "You have no rights for this request"
+            }, status=400)
+              
     def post(self, request):
         app = MicrosoftValidation(request).verify()
 
