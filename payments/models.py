@@ -305,7 +305,7 @@ class MpesaRequest(TimestampedModel):
         ('CANCELLED', 'CANCELLED'),
       
     )
-    user_key =  models.ForeignKey(UserRequestsModel,on_delete=models.CASCADE,blank=True,null=True)
+    # user_key =  models.ForeignKey(UserRequestsModel,on_delete=models.CASCADE,blank=True,null=True)
     phoneNumber =  models.CharField(max_length =  255)
     accountReference =  models.TextField()
     amount =  models.DecimalField(max_digits = 20, decimal_places = 2)
