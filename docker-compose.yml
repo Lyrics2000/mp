@@ -1,14 +1,25 @@
 version: '2'
 services:
-  britam_payment:
+  # britam_payment:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.prod
+  #   image: acruksaksbritam3753.azurecr.io/britam_payment_module:2.7
+  #   volumes:
+  #     - ./:/usr/src/britam/payments/app
+  #   ports:
+  #     - 8077:8077
+
+  britam_payment_UAT:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    image: acruksaksbritam3753.azurecr.io/britam_payment_module:2.7
+      dockerfile: Dockerfile.uat
+    image: acruksaksbritam3753.azurecr.io/britam_payment_module_UAT:2.7
     volumes:
       - ./:/usr/src/britam/payments/app
     ports:
-      - 8077:8077
+      - 8075:8075
+
 
   
 
