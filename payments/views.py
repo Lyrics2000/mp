@@ -1000,6 +1000,7 @@ class SendSTKPUSH(APIView):
         if PAYMENT_VERIFY_CHECKOUT_ID in app.json()['data']['roles']:
             checkout_id  = request.query_params.get("checkout_id",None)
             phone_number =  request.query_params.get("phone_number",None)
+          
 
             if None in [checkout_id,phone_number]:
                 dddata = {
