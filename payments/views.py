@@ -103,9 +103,32 @@ class QueryMpesaStatement(APIView):
                     "message":"Fill all details"
                 },status=400)
             
-            app =  query_stk(check_out_id,paybill,PAYMENT_QUERY_STK_PUSH,request,"api/v1/stk/query/")
+            # check_if checkout_id_exist
 
-            return Response(app['message'],status=app['code'])
+            k = MpesaRequest.objects.filter(
+                  CheckoutRequestID = check_out_id
+            )
+
+            if len(k) > 0:
+                app =  query_stk(check_out_id,paybill,PAYMENT_QUERY_STK_PUSH,request,"api/v1/stk/query/")
+
+                return Response(app['message'],status=app['code'])
+            else:
+                dddata = {
+                            "role": PAYMENT_QUERY_STK_PUSH,
+                            "successfull": False,
+                            "message": f"Checkout id not found in our system {check_out_id} for paybill {paybill}",
+                            "endpoint": "api/v1/stk/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+
+                if kk['code'] > 204:
+                                return Response(kk['message'],status = kk['code'])
+                
+                return Response({
+                      "status":"Failed",
+                      "message":f"checkout id {check_out_id} is not found in our system!"
+                },status=400)
 
 
         else:
@@ -1000,7 +1023,6 @@ class SendSTKPUSH(APIView):
         if PAYMENT_VERIFY_CHECKOUT_ID in app.json()['data']['roles']:
             checkout_id  = request.query_params.get("checkout_id",None)
             phone_number =  request.query_params.get("phone_number",None)
-          
 
             if None in [checkout_id,phone_number]:
                 dddata = {
