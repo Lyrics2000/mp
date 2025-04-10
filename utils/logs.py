@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 url = "http://172.28.1.36:8259/dashboard/add/api/"
 def make_api_request_log_request(request,data):
-    # try:
+    try:
         sub_key = request.META.get('HTTP_OCP_APIM_SUBSCRIPTION_KEY', None)
         token = request.META.get('HTTP_AUTHORIZATION', None)
         ip_address = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -38,10 +38,10 @@ def make_api_request_log_request(request,data):
              "code":response.status_code,
              "message":response.json()
         }
-    # except requests.exceptions.RequestException as e:
-    #     print(f"Error occurred: {e}")
-    #     logger.info(f"The Error occured is  : {e}")
-    #     return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error occurred: {e}")
+        logger.info(f"The Error occured is  : {e}")
+        return None
 
 # Example usage
 
