@@ -16,7 +16,8 @@ from config.settings.settings import (
     PAYMENT_REGISTER_URL,
     PAYMENT_ADD_BUSINESS,
     PAYMENTS_STK_PUSH_BUSINESS,
-    PAYMENT_VERIFY_CHECKOUT_ID
+    PAYMENT_VERIFY_CHECKOUT_ID,
+    PAYMENT_ADD_USER
 )
 
 from .important.ImportantClasses import (
@@ -33,7 +34,8 @@ from .models import (
     C2BPaymentsValidation,
     C2BPaymentsConfirmation,
     AuthToken,
-    OnlineCheckout
+    OnlineCheckout,
+    UserRequestsModel
 )
 
 from django.views.decorators.csrf import csrf_exempt
@@ -44,7 +46,8 @@ from .serializers import (
     MpesaCallbackMetaDataSerializers,
     C2BPaymentsValidationSerializer,
     C2BPaymentsConfirmationSerializer,
-    StoreBusinessCodeSerializer
+    StoreBusinessCodeSerializer,
+    UserRequestsModelSerializer
 )
 import threading
 from rest_framework.generics import CreateAPIView
@@ -86,6 +89,140 @@ from .serializers import (
 from utils.logs import (
      make_api_request_log_request
 )
+
+
+class UserRequestsModelApiView(APIView):
+      def post(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+
+        if PAYMENT_ADD_USER in app.json()['data']['roles']:
+            business_id =  request.data.get("business_id",None)
+            name =  request.data.get("name",None)
+            key =  request.data.get("key",None)
+
+            if None in [business_id,name,key]:
+                    dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": False,
+                            "message": f"add all required fields",
+                            "endpoint": "api/v1/add/user/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+
+                    if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
+                    
+                    return Response({
+                          "status":"Failed",
+                          "message":"Fill all required details"
+                    },status=400)
+              
+            else:
+                try:
+                        int(business_id)
+                except:
+                    dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": False,
+                            "message": f"Invalid Business id",
+                            "endpoint": "api/v1/add/user/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+
+                    if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
+                      
+
+                    return Response({
+                          "status":"Failed",
+                          "message":"Invalid business id"
+                    },status=400)
+                
+
+                check_biz = StoreBusinessCode.objects.filter(id  =  int(business_id))
+
+                if len(check_biz) > 0:
+                      obj,update =  UserRequestsModel.objects.update_or_create(
+                            business = check_biz[0],
+                            name =  name,
+                            key =  key
+
+                      )
+
+                      if obj:
+                        dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": True,
+                            "message": f"Created the user successfully",
+                            "endpoint": "api/v1/add/user/"
+                        }
+                        kk = make_api_request_log_request(request,dddata)
+
+                        if kk['code'] > 204:
+                                        return Response(kk['message'],status = kk['code'])
+
+                        return Response({
+                              "status":"Failed",
+                              "message":"Created successfully",
+                              "data":UserRequestsModelSerializer(obj).data
+                        },status=201)
+                      else:
+                        dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": False,
+                            "message": f"Internal Error creating user",
+                            "endpoint": "api/v1/add/user/"
+                        }
+                        kk = make_api_request_log_request(request,dddata)
+
+                        if kk['code'] > 204:
+                                        return Response(kk['message'],status = kk['code'])
+
+                        return Response({
+                              "status":"Failed",
+                              "message":"Internal Error creating user"
+                        },status=500)
+                else:
+                    dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": False,
+                            "message": f"Business with id {business_id} is not found",
+                            "endpoint": "api/v1/add/user/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+
+                    if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
+
+                    return Response(
+                          {
+                                "status":"Failed",
+                                "message":f"Business with id {business_id} is not found"
+                          },status=400
+                    ) 
+  
+
+        else:
+            dddata = {
+                            "role": PAYMENT_ADD_USER,
+                            "successfull": False,
+                            "message": f"You have no right",
+                            "endpoint": "api/v1/add/user/"
+                        }
+            kk = make_api_request_log_request(request,dddata)
+
+            if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+            return Response({
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)
+              
+              
+            
 class QueryMpesaStatement(APIView):
     def post(self,request):
 
@@ -145,7 +282,7 @@ class QueryMpesaStatement(APIView):
                             return Response(kk['message'],status = kk['code'])
             return Response({
                 "status":"Failed",
-                "message":"U have no rights for this request"
+                "message":"You have no rights for this request"
             },status =  400)
 
 

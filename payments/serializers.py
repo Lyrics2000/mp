@@ -7,10 +7,17 @@ from .models import (
     PayBillNumbers,
     OnlineCheckoutResponse,
     C2BPaymentsValidation,
-    StoreBusinessCode
+    StoreBusinessCode,
+    UserRequestsModel
 )
 
 
+
+class UserRequestsModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  UserRequestsModel
+        fields = '__all__'
+        depth =  1
 class StoreBusinessCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model =  StoreBusinessCode
