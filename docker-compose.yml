@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile.uat
     image: acruksaksbritam3753.azurecr.io/britam_payment_module_uat:2.7
     volumes:
-      - ./:/usr/src/britam/payments/app
+      - ./:/usr/src/britam/payments/app/uat
     ports:
       - 8075:8075
 
