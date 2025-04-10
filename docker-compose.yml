@@ -10,11 +10,11 @@ services:
   #   ports:
   #     - 8077:8077
 
-  britam_payment_UAT:
+  britam_payment_uat:
     build:
       context: .
       dockerfile: Dockerfile.uat
-    image: acruksaksbritam3753.azurecr.io/britam_payment_module_UAT:2.7
+    image: acruksaksbritam3753.azurecr.io/britam_payment_module_uat:2.7
     volumes:
       - ./:/usr/src/britam/payments/app
     ports:
