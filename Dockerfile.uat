@@ -58,4 +58,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Run the production script
-CMD ["/bin/bash", "./run-uat.sh"]
+CMD ["/bin/bash", "run-uat.sh"]
