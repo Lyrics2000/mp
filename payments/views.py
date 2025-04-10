@@ -43,7 +43,8 @@ from .serializers import (
    MpesaSerializers,
     MpesaCallbackMetaDataSerializers,
     C2BPaymentsValidationSerializer,
-    C2BPaymentsConfirmationSerializer
+    C2BPaymentsConfirmationSerializer,
+    StoreBusinessCodeSerializer
 )
 import threading
 from rest_framework.generics import CreateAPIView
@@ -311,7 +312,7 @@ class CreateBusinessApiView(APIView):
                     return Response({
                         "status":"Success",
                         "message":"Data created",
-                        "data": PayBillNumbersSerializers(obj).data
+                        "data": StoreBusinessCodeSerializer(obj).data
                     },status=201)
             
             else:

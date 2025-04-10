@@ -6,9 +6,15 @@ from .models import (
     C2BPaymentsConfirmation,
     PayBillNumbers,
     OnlineCheckoutResponse,
-    C2BPaymentsValidation
+    C2BPaymentsValidation,
+    StoreBusinessCode
 )
 
+
+class StoreBusinessCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  StoreBusinessCode
+        fields = '__all__'
 
 class OnlineCheckoutResponseSerializer(serializers.ModelSerializer):
     class Meta:
