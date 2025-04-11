@@ -318,6 +318,8 @@ class MpesaRequest(TimestampedModel):
 
     callback_url =  models.URLField(blank =  True,null = True)
     callback_sent =  models.BooleanField(default=False)
+    update_lob =  models.BooleanField(default=False)
+    lob_message =  models.CharField(max_length=255,blank=True,null=True)
     paid =  models.CharField(max_length =  255, choices = STATUS_CHOICES , default = "PENDING" )
     
     

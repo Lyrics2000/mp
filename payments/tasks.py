@@ -5,6 +5,9 @@ from .models import MpesaRequest
 import threading
 from config.util.c2butils import handleCallback_m
 import json
+from utils.constants import (
+    Contants
+)
 
 from celery import shared_task
 
@@ -20,6 +23,9 @@ from config.util.c2butils import process_online_checkout
 from config.util.b2cutils import send_b2c_request
 from celery.contrib import rdb
 import logging
+from utils.HttpRequests import (
+    HttpCalls
+)
 
 from .mpesa import Mpesa
 
@@ -369,69 +375,44 @@ def handle_online_checkout_callback_task(response):
                                         MerchantRequestID =  merch_out )
     
     if len(all_m) > 0:
-        # try:
-            update_data = dict()
-            update_data["result_code"] = data.get("ResultCode", "")
-            update_data["result_description"] = data.get("ResultDesc", "")
-            update_data["checkout_request_id"] = data.get("CheckoutRequestID", "")
-            update_data["merchant_request_id"] = data.get("MerchantRequestID", "")
+           
+            # try:
+                update_data = dict()
+                update_data["result_code"] = data.get("ResultCode", "")
+                update_data["result_description"] = data.get("ResultDesc", "")
+                update_data["checkout_request_id"] = data.get("CheckoutRequestID", "")
+                update_data["merchant_request_id"] = data.get("MerchantRequestID", "")
 
-            meta_data = data.get("CallbackMetadata", {}).get("Item", {})
-            if len(meta_data) > 0:
-                # handle the meta data
-                for item in meta_data:
-                    if len(item.values()) > 1:
-                        key, value = item.values()
-                        if key == "MpesaReceiptNumber":
-                            update_data["mpesa_receipt_number"] = value
-                        if key == "Amount":
-                            update_data["amount"] = Decimal(value)
-                        if key == "PhoneNumber":
-                            update_data["phone"] = int(value)
-                        if key == "TransactionDate":
-                            date = str(value)
-                            year, month, day, hour, min, sec = (
-                                date[:4],
-                                date[4:-8],
-                                date[6:-6],
-                                date[8:-4],
-                                date[10:-2],
-                                date[12:],
-                            )
-                            update_data[
-                                "transaction_date"
-                            ] = "{}-{}-{} {}:{}:{}".format(
-                                year, month, day, hour, min, sec
-                            )
+                meta_data = data.get("CallbackMetadata", {}).get("Item", {})
+                if len(meta_data) > 0:
+                    # handle the meta data
+                    for item in meta_data:
+                        if len(item.values()) > 1:
+                            key, value = item.values()
+                            if key == "MpesaReceiptNumber":
+                                update_data["mpesa_receipt_number"] = value
+                            if key == "Amount":
+                                update_data["amount"] = Decimal(value)
+                            if key == "PhoneNumber":
+                                update_data["phone"] = int(value)
+                            if key == "TransactionDate":
+                                date = str(value)
+                                year, month, day, hour, min, sec = (
+                                    date[:4],
+                                    date[4:-8],
+                                    date[6:-6],
+                                    date[8:-4],
+                                    date[10:-2],
+                                    date[12:],
+                                )
+                                update_data[
+                                    "transaction_date"
+                                ] = "{}-{}-{} {}:{}:{}".format(
+                                    year, month, day, hour, min, sec
+                                )
 
-            # save
+                # save
 
-                try:
-                    OnlineCheckoutResponse.objects.create(
-                        rdb = all_m[0],
-                        merchant_request_id = update_data.get('merchant_request_id'),
-                        checkout_request_id = update_data.get('checkout_request_id'),
-                        result_code = update_data.get('result_code'),
-                        result_description = update_data.get('result_description'),
-                        mpesa_receipt_number = update_data.get('mpesa_receipt_number'),
-                        transaction_date = update_data.get('transaction_date'),
-                        phone = update_data.get('phone'),
-                        amount = update_data.get('amount'),
-                    )
-
-                    try:
-                        if int(update_data.get('result_code', 1)) == 0:
-                            all_m[0].paid = "PAID"
-                        else:
-                            all_m[0].paid = "CANCELLED"
-                        all_m[0].save()
-                    except Exception as e:
-                        logger.exception("Failed to update payment status")
-                        all_m[0].paid = "CANCELLED"
-                        all_m[0].save()
-
-                except Exception as e:
-                    logger.exception("Failed to create OnlineCheckoutResponse, creating partial record.")
                     try:
                         OnlineCheckoutResponse.objects.create(
                             rdb = all_m[0],
@@ -439,24 +420,78 @@ def handle_online_checkout_callback_task(response):
                             checkout_request_id = update_data.get('checkout_request_id'),
                             result_code = update_data.get('result_code'),
                             result_description = update_data.get('result_description'),
-                            # Ensure all required fields are included or set null=True in model
+                            mpesa_receipt_number = update_data.get('mpesa_receipt_number'),
+                            transaction_date = update_data.get('transaction_date'),
+                            phone = update_data.get('phone'),
+                            amount = update_data.get('amount'),
                         )
+
+                        try:
+                            if int(update_data.get('result_code', 1)) == 0:
+                                all_m[0].paid = "PAID"
+                                if all_m[0].user_key:
+                                    if all_m[0].user_key.business.key == Contants.IGAS:
+                                        app =  HttpCalls()
+                                
+                                        js = {
+                                            "TRANSID": all_m[0].replace("ws_CO_",""),
+                                            "MPESA_RECEIPT_NO": update_data.get('mpesa_receipt_number'),
+                                            "MOBILENO": update_data.get('phone'),
+                                            "REFNO": all_m[0].accountReference,
+                                            "AMOUNT": update_data.get('amount')
+                                            }
+                                        send_mpesa =  app.post(js,Contants.IGAS_INTERNAL_URL)
+
+                                        if send_mpesa.status_code > 201:
+                                            all_m[0].update_lob = False
+                                            all_m[0].lob_message = f"Could not update igas payment for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}"
+                                            all_m[0].save()
+                                        else:
+                                            all_m[0].update_lob = True
+                                            all_m[0].lob_message = f"send to lob system  for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}"
+                                            all_m[0].save()
+
+
+                                else:
+                                    pass
+
+                                    
+
+                            else:
+                                all_m[0].paid = "CANCELLED"
+                            all_m[0].save()
+                        except Exception as e:
+                            logger.exception("Failed to update payment status")
+                            all_m[0].paid = "CANCELLED"
+                            all_m[0].save()
+
                     except Exception as e:
-                        logger.exception("Even fallback create failed")
+                        logger.exception("Failed to create OnlineCheckoutResponse, creating partial record.")
+                        try:
+                            OnlineCheckoutResponse.objects.create(
+                                rdb = all_m[0],
+                                merchant_request_id = update_data.get('merchant_request_id'),
+                                checkout_request_id = update_data.get('checkout_request_id'),
+                                result_code = update_data.get('result_code'),
+                                result_description = update_data.get('result_description'),
+                                # Ensure all required fields are included or set null=True in model
+                            )
+                        except Exception as e:
+                            logger.exception("Even fallback create failed")
 
 
-            
-            oooi = MpesaCallbackMetaData.objects.create(
-                rdb = all_m[0],
-                name = update_data['merchant_request_id'],
-                value = update_data['checkout_request_id'],
-                description = json.dumps(response)
-            )
-            
-            background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
+                
+                oooi = MpesaCallbackMetaData.objects.create(
+                    rdb = all_m[0],
+                    name = update_data['merchant_request_id'],
+                    value = update_data['checkout_request_id'],
+                    description = json.dumps(response)
+                )
+                
+                background_thread = threading.Thread(target=handleCallback_m, args=(response,all_m[0]))
 
-            # Start the thread
-            background_thread.start()
+                # Start the thread
+                background_thread.start()
         # except Exception as ex:
         #     logger.info(dict(updated_data="error in callback"))
         #     logger.error(ex)
