@@ -446,10 +446,12 @@ def handle_online_checkout_callback_task(response):
                                             all_m[0].update_lob = False
                                             all_m[0].lob_message = f"Could not update igas payment for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}"
                                             all_m[0].save()
+                                            logger.error(f"Could not update igas payment for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}")
                                         else:
                                             all_m[0].update_lob = True
                                             all_m[0].lob_message = f"send to lob system  for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}"
                                             all_m[0].save()
+                                            logger.info(f"send to lob system  for {all_m[0].phoneNumber} with checkout id {all_m[0].CheckoutRequestID}")
 
 
                                 else:
