@@ -28,7 +28,7 @@ DATABASES = {
     "validation":{
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'dwh',
-        'USER': 'tachongo[validation]',
+        'USER': 'tachongo[VALIDATION]',
         'PASSWORD': 'H#rd2_gu355',
         'HOST': '172.26.0.47',
         'PORT': '1521',

@@ -6,6 +6,10 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from .Middleware import MicrosoftValidation
+import json
+from utils.app import (
+      OracleDB
+)
 from config.settings.settings import (
     PAYMENTS_STK_PUSH,
     PAYMENT_QUERY_STK_PUSH,
@@ -1139,11 +1143,81 @@ class SendSTKPUSHBusinessProcess(APIView):
                 if kk['code'] > 204:
                         return Response(kk['message'],status = kk['code'])  
 
-                app  =  process_online_checkout(
-                      phoneNumber,amount,paybill,accountReference,description,PAYMENTS_STK_PUSH_BUSINESS,request,"api/v1/stk/business/",is_paybill,ap
-                )
 
-                return Response(app['message'], status=app['code'])
+
+                # check_business
+
+                if check_bis[0].business.key == "IGAS":
+                    # validate payment 
+                    db_commissions = OracleDB()  # Adjust as necessary for your OracleDB class setup
+
+
+                    # try:
+                    db_commissions.connect()
+                    logger.info("Connected to the database successfully.")
+
+                    headers_query = f"""
+                            SELECT POLICY_NO, POL_STAT, NX_EXP_PR_DT, PREM_STOP_DATE, PLANNO, PLAN_DESCN, NI_NUMBER, FIRST_NAME, SURNAME
+                            FROM VALIDATION.IGAS_MPESA_VALIDATIONS WHERE POLICY_NO  = '{accountReference}'"""
+                    
+                    headers = db_commissions.execute_query(headers_query)
+                    if headers:
+                        headers_data = json.loads(headers)
+
+                        if len(headers_data) > 0:
+                            dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": True,
+                            "message": f"Fetched {headers_data} headers to process.",
+                            "endpoint": "api/v1/stk/business/"
+                                    }
+                            kk = make_api_request_log_request(request,dddata)
+                            if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])  
+
+                            return Response(
+                                headers_data  
+                            )
+                        else:
+                            dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": False,
+                            "message": f"User with account ref {accountReference} does not exist",
+                            "endpoint": "api/v1/stk/business/"
+                                    }
+                            kk = make_api_request_log_request(request,dddata)
+                            if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])  
+
+                            logger.info(f"Fetched {headers_data} headers to process.")
+                        
+                            return Response({
+                                  "status":"False",
+                                  "message":f"User with account ref {accountReference} does not exist"
+                            },status=400)
+
+                    # app  =  process_online_checkout(
+                    #   phoneNumber,amount,paybill,accountReference,description,PAYMENTS_STK_PUSH_BUSINESS,request,"api/v1/stk/business/",is_paybill,ap
+                    # )
+
+                    # return Response(app['message'], status=app['code'])
+            
+                else:
+                    dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": False,
+                            "message": f"Business with key {check_bis[0].business.key} not configured yet",
+                            "endpoint": "api/v1/stk/business/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])  
+
+                    return Response({
+                          "status":"Failed",
+                          "message":f"Business with key {check_bis[0].business.key} not configured yet"
+                    },status=400)
+                
             else:
                 dddata = {
                             "role": PAYMENTS_STK_PUSH_BUSINESS,
@@ -1157,7 +1231,7 @@ class SendSTKPUSHBusinessProcess(APIView):
 
                 return Response({
                       "status":"Failed",
-                      "message":""
+                      "message":f"No user key Found"
                 }) 
                   
 
