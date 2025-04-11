@@ -315,6 +315,7 @@ class MpesaRequest(TimestampedModel):
     ResponseCode =  models.TextField()
     ResponseDescription =  models.TextField()
     CustomerMessage =  models.TextField()
+
     callback_url =  models.URLField(blank =  True,null = True)
     callback_sent =  models.BooleanField(default=False)
     paid =  models.CharField(max_length =  255, choices = STATUS_CHOICES , default = "PENDING" )

@@ -1175,9 +1175,31 @@ class SendSTKPUSHBusinessProcess(APIView):
                             if kk['code'] > 204:
                                     return Response(kk['message'],status = kk['code'])  
 
-                            return Response(
-                                headers_data  
-                            )
+                            check_policy_status =  headers_data[0]['POL_STAT']
+
+                            if "A" in [check_policy_status]:
+                                
+                                app  =  process_online_checkout(
+                                  phoneNumber,amount,paybill,accountReference,description,PAYMENTS_STK_PUSH_BUSINESS,request,"api/v1/stk/business/",is_paybill,ap
+                                )
+
+                                dddata = {
+                                "role": PAYMENTS_STK_PUSH_BUSINESS,
+                                "successfull": True,
+                                "message": f"Processed request successfully, The response {app['message']}",
+                                "endpoint": "api/v1/stk/business/"
+                                        }
+                                kk = make_api_request_log_request(request,dddata)
+                                if kk['code'] > 204:
+                                        return Response(kk['message'],status = kk['code'])
+                                return Response(app['message'], status=app['code'])
+                            else:
+                                return Response({
+                                      "status":"Failed",
+                                      "message":"Policy can not accept payment",
+                                      "data":headers_data
+                                },status=400)  
+                            
                         else:
                             dddata = {
                             "role": PAYMENTS_STK_PUSH_BUSINESS,
@@ -1196,11 +1218,7 @@ class SendSTKPUSHBusinessProcess(APIView):
                                   "message":f"User with account ref {accountReference} does not exist"
                             },status=400)
 
-                    # app  =  process_online_checkout(
-                    #   phoneNumber,amount,paybill,accountReference,description,PAYMENTS_STK_PUSH_BUSINESS,request,"api/v1/stk/business/",is_paybill,ap
-                    # )
-
-                    # return Response(app['message'], status=app['code'])
+                    
             
                 else:
                     dddata = {
