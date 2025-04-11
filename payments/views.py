@@ -20,6 +20,10 @@ from config.settings.settings import (
     PAYMENT_ADD_USER
 )
 
+from config.util.c2butils import (
+      process_online_checkout
+)
+
 from .important.ImportantClasses import (
     LipaNaMpesa,
     format_phone_number
@@ -960,7 +964,7 @@ class SendSTKPUSHBusinessProcess(APIView):
 
         # logger.info("the jjs2" , app.text)
         if PAYMENTS_STK_PUSH_BUSINESS in app.json()['data']['roles']:
-            business_key = request.data.get("business_key",None)
+            user_key = request.data.get("user_key",None)
             phoneNumber = request.data.get("phone", None)
             accountReference = request.data.get("account_reference", None)
             amount = request.data.get("amount", None)
@@ -974,6 +978,18 @@ class SendSTKPUSHBusinessProcess(APIView):
 
             missing_fields = {}
             
+            if user_key is None:
+                dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": False,
+                            "message": f"User key is missing in body",
+                            "endpoint": "api/v1/stk/business/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
+                missing_fields['user_key'] = "User key is missing"
+
             if phoneNumber is None:
                 dddata = {
                             "role": PAYMENTS_STK_PUSH_BUSINESS,
@@ -1095,17 +1111,44 @@ class SendSTKPUSHBusinessProcess(APIView):
 
             logger.info("there is a test coming")
 
-            check_bis =  StoreBusinessCode.objects.filter(
-                key =  business_key  
+            check_bis =  UserRequestsModel.objects.filter(
+                key =  user_key  
             )
 
             if len(check_bis) > 0:
-                  pass
+                ap =  MpesaRequest.objects.create(
+                        user_key = check_bis[0],
+                        phoneNumber = phoneNumber,
+                        accountReference = accountReference,
+                        amount  = amount,
+                        description = description,
+                        MerchantRequestID = "MerchantRequestID",
+                        CheckoutRequestID = "CheckoutRequestID",
+                        ResponseCode = "1",
+                        ResponseDescription = "ResponseDescription",
+                        CustomerMessage = "CustomerMessage",
+                        callback_url = call_back_url
+                    ) 
+                dddata = {
+                            "role": PAYMENTS_STK_PUSH_BUSINESS,
+                            "successfull": False,
+                            "message": f"Mpesa payment request for {request.data} created successfully",
+                            "endpoint": "api/v1/stk/business/"
+                        }
+                kk = make_api_request_log_request(request,dddata)
+                if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])  
+
+                app  =  process_online_checkout(
+                      phoneNumber,amount,paybill,accountReference,description,PAYMENTS_STK_PUSH_BUSINESS,request,"api/v1/stk/business/",is_paybill,ap
+                )
+
+                return Response(app['message'], status=app['code'])
             else:
                 dddata = {
                             "role": PAYMENTS_STK_PUSH_BUSINESS,
                             "successfull": False,
-                            "message": f"No Business Found",
+                            "message": f"No user key Found",
                             "endpoint": "api/v1/stk/business/"
                         }
                 kk = make_api_request_log_request(request,dddata)
