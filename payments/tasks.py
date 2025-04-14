@@ -211,6 +211,7 @@ def process_c2b_confirmation_task(response):
     if response.get("OrgAccountBalance", ""):
         org_balance = Decimal(response.get("OrgAccountBalance"))
 
+
     data = dict(
         transaction_type=response.get("TransactionType", ""),
         transaction_id=response.get("TransID", ""),
