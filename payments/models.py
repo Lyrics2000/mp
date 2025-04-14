@@ -219,7 +219,7 @@ class C2BPaymentsConfirmation(models.Model):
     InvoiceNumber = models.CharField(max_length=120, blank=True, null=True)
     OrgAccountBalance = models.CharField(max_length=120, blank=True, null=True)
     ThirdPartyTransID = models.CharField(max_length=120, blank=True, null=True)
-    MSISDN = models.CharField(max_length=25, blank=True, null=True)
+    MSISDN = models.TextField(blank=True, null=True)
     FirstName = models.CharField(max_length=50, blank=True, null=True)
     MiddleName = models.CharField(max_length=50, blank=True, null=True)
     LastName = models.CharField(max_length=50, blank=True, null=True)
