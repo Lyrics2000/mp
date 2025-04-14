@@ -49,7 +49,8 @@ class MpesaCallbackMetaDataSerializers(serializers.ModelSerializer):
 class C2BPaymentsConfirmationSerializer(serializers.ModelSerializer):
     class Meta:
         model = C2BPaymentsConfirmation
-        fields = '__all__'
+        fields = ('TransID','TransTime','TransAmount','BillRefNumber','FirstName')
+
 
 class C2BPaymentsValidationSerializer(serializers.ModelSerializer):
     class Meta:
