@@ -23,11 +23,13 @@ from .views import (
     RecurringCardsView,
     CreateBusinessApiView,
     SendSTKPUSHBusinessProcess,
-    UserRequestsModelApiView
+    UserRequestsModelApiView,
+    VerifyManualApiView
     
 )
 
 app_name = "payments"
+
 
 urlpatterns = [
     path("add/paybill/",AddPaybill.as_view()),
@@ -39,6 +41,7 @@ urlpatterns = [
     path("check/transaction/status/",CheckTransactionStatus.as_view()),
     path("callback/",MpesaCallbackApiView.as_view()),
     path("filter/",FilterTransaction.as_view()),
+    path("verify/manual/",VerifyManualApiView.as_view()),
     path('validation_url/', C2BValidationApiView.as_view(), name='c2b_validation_url'),
     path('confirmation_url/', C2BConfirmationApiView.as_view(), name='c2b_confirmation_url'),
     path("c2b_simulate/",MakeC2BPaymentApiView.as_view()),

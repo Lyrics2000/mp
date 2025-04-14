@@ -21,7 +21,8 @@ from config.settings.settings import (
     PAYMENT_ADD_BUSINESS,
     PAYMENTS_STK_PUSH_BUSINESS,
     PAYMENT_VERIFY_CHECKOUT_ID,
-    PAYMENT_ADD_USER
+    PAYMENT_ADD_USER,
+    PAYMENT_VERIFY_MANUAL_PAYMENT
 )
 
 from config.util.c2butils import (
@@ -293,6 +294,80 @@ class QueryMpesaStatement(APIView):
                 "message":"You have no rights for this request"
             },status =  400)
 
+
+class VerifyManualApiView(APIView):
+      def post(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+
+        if PAYMENT_VERIFY_MANUAL_PAYMENT in app.json()['data']['roles']: 
+              transId =  request.data.get("transId",None)
+              payBill =  request.data.get("payBill",None)
+              BillRefNumber  =  request.data.get("billRefNumber",None)
+
+              if None in [transId,payBill,BillRefNumber]:
+                    dddata = {
+                            "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                            "successfull": False,
+                            "message": f"Verification Successfully!",
+                            "endpoint": "verify/manual/"
+                        }
+                    
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                    return Response({
+                          "status":"Failed",
+                          "message":"Fill required details"
+                    },status =  400)
+
+
+        c2bmodel_data = C2BPaymentsConfirmation.objects.filter(
+            TransID = transId,
+            BusinessShortCode = payBill,
+            BillRefNumber = BillRefNumber,
+        
+        ) 
+
+        if len(c2bmodel_data) > 0:
+
+            dddata = {
+                            "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                            "successfull": True,
+                            "message": f"Successfully retrieved data {c2bmodel_data[0].TransID}!",
+                            "endpoint": "verify/manual/"
+                        }
+                    
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+            return Response({
+                "status":"Success",
+                "message":"Retrived successfully",
+                "data":C2BPaymentsConfirmationSerializer(c2bmodel_data,many = True).data
+            })
+        else:
+            dddata = {
+                            "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                            "successfull": False,
+                            "message": f"No data found for {transId} {payBill} {BillRefNumber}!",
+                            "endpoint": "verify/manual/"
+                        }
+                    
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                return Response(kk['message'],status = kk['code'])
+            return Response({
+                    "status":"Failed",
+                    "message":"No data found",
+                    "data":[]
+              },status=400)
+
+
+                    
+                    
 
 class AddPaybill(APIView):
     def post(self,request):
