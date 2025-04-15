@@ -7,6 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from .Middleware import MicrosoftValidation
 import json
+import json
+from django.utils.dateparse import parse_datetime
+from .models import CardPaymentsTransactions
+
 from utils.app import (
       OracleDB
 )
@@ -593,6 +597,89 @@ class B2cResult(APIView):
         return Response(dict(value="ok", key="status", detail="success"))
 
 
+def insert_payment_transaction(data):
+    # Parse date fields explicitly
+    auth_time = parse_datetime(data.get("auth_time").replace("T", "").replace("Z", "")) if data.get("auth_time") else None
+    signed_date_time = parse_datetime(data.get("signed_date_time")) if data.get("signed_date_time") else None
+
+    # Convert amounts to Decimal if needed
+    auth_amount = data.get("auth_amount")
+    req_amount = data.get("req_amount")
+    try:
+        auth_amount = float(auth_amount)
+    except (TypeError, ValueError):
+        auth_amount = 0.0
+    try:
+        req_amount = float(req_amount)
+    except (TypeError, ValueError):
+        req_amount = 0.0
+
+    transaction = CardPaymentsTransactions.objects.create(
+        req_locale = data.get("req_locale"),
+        req_payer_authentication_indicator = data.get("req_payer_authentication_indicator"),
+        payer_authentication_acs_transaction_id = data.get("payer_authentication_acs_transaction_id"),
+        req_card_type_selection_indicator = data.get("req_card_type_selection_indicator"),
+        auth_trans_ref_no = data.get("auth_trans_ref_no"),
+        payer_authentication_enroll_veres_enrolled = data.get("payer_authentication_enroll_veres_enrolled"),
+        req_bill_to_surname = data.get("req_bill_to_surname"),
+        req_card_expiry_date = data.get("req_card_expiry_date"),
+        merchant_advice_code = data.get("merchant_advice_code"),
+        req_bill_to_phone = data.get("req_bill_to_phone"),
+        card_type_name = data.get("card_type_name"),
+        auth_amount = auth_amount,
+        auth_response = data.get("auth_response"),
+        bill_trans_ref_no = data.get("bill_trans_ref_no"),
+        req_payment_method = data.get("req_payment_method"),
+        req_payer_authentication_merchant_name = data.get("req_payer_authentication_merchant_name"),
+        auth_time = auth_time,
+        transaction_id = data.get("transaction_id"),
+        req_card_type = data.get("req_card_type"),
+        payer_authentication_transaction_id = data.get("payer_authentication_transaction_id"),
+        payer_authentication_pares_status = data.get("payer_authentication_pares_status"),
+        payer_authentication_cavv = data.get("payer_authentication_cavv"),
+        auth_avs_code = data.get("auth_avs_code"),
+        auth_code = data.get("auth_code"),
+        payment_token_instrument_identifier_new = data.get("payment_token_instrument_identifier_new"),
+        payer_authentication_specification_version = data.get("payer_authentication_specification_version"),
+        req_bill_to_address_country = data.get("req_bill_to_address_country"),
+        req_profile_id = data.get("req_profile_id"),
+        signed_date_time = signed_date_time,
+        req_bill_to_address_line1 = data.get("req_bill_to_address_line1"),
+        payer_authentication_validate_e_commerce_indicator = data.get("payer_authentication_validate_e_commerce_indicator"),
+        req_card_number = data.get("req_card_number"),
+        signature = data.get("signature"),
+        payment_token = data.get("payment_token"),
+        payment_token_instrument_identifier_id = data.get("payment_token_instrument_identifier_id"),
+        req_bill_to_address_city = data.get("req_bill_to_address_city"),
+        auth_cavv_result = data.get("auth_cavv_result"),
+        reason_code = data.get("reason_code"),
+        req_bill_to_forename = data.get("req_bill_to_forename"),
+        req_payer_authentication_acs_window_size = data.get("req_payer_authentication_acs_window_size"),
+        payment_account_reference = data.get("payment_account_reference"),
+        request_token = data.get("request_token"),
+        req_device_fingerprint_id = data.get("req_device_fingerprint_id"),
+        auth_cavv_result_raw = data.get("auth_cavv_result_raw"),
+        req_amount = req_amount,
+        req_bill_to_email = data.get("req_bill_to_email"),
+        payer_authentication_reason_code = data.get("payer_authentication_reason_code"),
+        auth_avs_code_raw = data.get("auth_avs_code_raw"),
+        req_currency = data.get("req_currency"),
+        decision = data.get("decision"),
+        message = data.get("message"),
+        req_transaction_uuid = data.get("req_transaction_uuid"),
+        payer_authentication_eci = data.get("payer_authentication_eci"),
+        req_transaction_type = data.get("req_transaction_type"),
+        payer_authentication_xid = data.get("payer_authentication_xid"),
+        req_access_key = data.get("req_access_key"),
+        req_reference_number = data.get("req_reference_number"),
+        payer_authentication_validate_result = data.get("payer_authentication_validate_result"),
+        payment_token_instrument_identifier_status = data.get("payment_token_instrument_identifier_status"),
+        auth_reconciliation_reference_number = data.get("auth_reconciliation_reference_number"),
+        signed_field_names = data.get("signed_field_names")
+    )
+
+    return transaction
+
 
 class RecurringCardsView(APIView):
     """
@@ -610,6 +697,12 @@ class RecurringCardsView(APIView):
         data = request.data
         print("The data is :",data)
         logger.info(f"The data is {data}")
+        data_dict = dict(line.split("=", 1) for line in data.strip().split("\n"))
+
+        # Convert to JSON
+        json_output = json.dumps(data_dict, indent=2)
+        loaded_json =  json.loads(json_output)
+        inserted_transaction = insert_payment_transaction(json_data)
         return Response(dict(value="ok", key="status", detail="success"))
 
 

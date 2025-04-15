@@ -7,10 +7,12 @@ from .models import (
     OnlineCheckout,
     OnlineCheckoutResponse,
     PayBillNumbers,
-    StoreBusinessCode
+    StoreBusinessCode,
+    CardPaymentsTransactions
 )
 
 
+admin.site.register(CardPaymentsTransactions)
 
 @admin.register(PayBillNumbers)
 class PayBillNumbersAdmin(admin.ModelAdmin):
