@@ -329,7 +329,7 @@ class VerifyManualApiView(APIView):
 
 
         c2bmodel_data = C2BPaymentsConfirmation.objects.filter(
-            TransID = transId,
+            TransID = str(transId),
             BusinessShortCode = payBill,
             BillRefNumber = BillRefNumber,
         
