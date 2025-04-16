@@ -326,51 +326,65 @@ class VerifyManualApiView(APIView):
                           "status":"Failed",
                           "message":"Fill required details"
                     },status =  400)
+              else:
+    
+                c2bmodel_data = C2BPaymentsConfirmation.objects.filter(
+                    TransID = str(transId),
+                    BusinessShortCode = payBill,
+                    BillRefNumber = BillRefNumber,
+                
+                ) 
 
+                if len(c2bmodel_data) > 0:
 
-        c2bmodel_data = C2BPaymentsConfirmation.objects.filter(
-            TransID = str(transId),
-            BusinessShortCode = payBill,
-            BillRefNumber = BillRefNumber,
-        
-        ) 
+                    dddata = {
+                                    "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                                    "successfull": True,
+                                    "message": f"Successfully retrieved data {c2bmodel_data[0].TransID}!",
+                                    "endpoint": "verify/manual/"
+                                }
+                            
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                                    return Response(kk['message'],status = kk['code'])
+                    return Response({
+                        "status":"Success",
+                        "message":"Retrived successfully",
+                        "data":C2BPaymentsConfirmationSerializer(c2bmodel_data,many = True).data
+                    })
+                else:
+                    dddata = {
+                                    "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                                    "successfull": False,
+                                    "message": f"No data found for {transId} {payBill} {BillRefNumber}!",
+                                    "endpoint": "verify/manual/"
+                                }
+                            
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                        return Response(kk['message'],status = kk['code'])
+                    return Response({
+                            "status":"Failed",
+                            "message":"No data found",
+                            "data":[]
+                    },status=400)
 
-        if len(c2bmodel_data) > 0:
-
-            dddata = {
-                            "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
-                            "successfull": True,
-                            "message": f"Successfully retrieved data {c2bmodel_data[0].TransID}!",
-                            "endpoint": "verify/manual/"
-                        }
-                    
-            kk = make_api_request_log_request(request,dddata)
-            if kk['code'] > 204:
-                            return Response(kk['message'],status = kk['code'])
-            return Response({
-                "status":"Success",
-                "message":"Retrived successfully",
-                "data":C2BPaymentsConfirmationSerializer(c2bmodel_data,many = True).data
-            })
         else:
+              
             dddata = {
-                            "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
-                            "successfull": False,
-                            "message": f"No data found for {transId} {payBill} {BillRefNumber}!",
-                            "endpoint": "verify/manual/"
-                        }
-                    
+                        "role": PAYMENT_VERIFY_MANUAL_PAYMENT,
+                        "successfull": False,
+                        "message": f"User Doesnt have rights to insert paybill endpoint",
+                        "endpoint": "api/v1/add/paybill/"
+                    }
             kk = make_api_request_log_request(request,dddata)
             if kk['code'] > 204:
                 return Response(kk['message'],status = kk['code'])
+            
             return Response({
-                    "status":"Failed",
-                    "message":"No data found",
-                    "data":[]
-              },status=400)
-
-
-                    
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)      
                     
 
 class AddPaybill(APIView):
