@@ -57,6 +57,7 @@ C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mp/payment/uat/api/v1/confirmat
 C2B_VALIDATE_URL = "https://brtgw.britam.com/mp/payment/uat/api/v1/validation_url/"
 
 
+
 AUDIENCE = "api://2551a6ae-039d-43bb-b05e-8d97d07f15e2"
 ISSUER_ID = "e303f219-75ef-479a-b23c-35ac9479a8ce"
 
