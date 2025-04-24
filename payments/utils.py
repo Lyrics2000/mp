@@ -4,9 +4,7 @@ from .models import (
     C2BCallbackResponses
 )
 
-from config.settings import (
-    MTEK_KEY
-)
+
 import re
 from utils.HttpRequests import (
     HttpCalls
@@ -54,7 +52,7 @@ class C2BSendMessages:
                     )
                     confirmation_obj.confirmation_status = True
                     confirmation_obj.save()
-                    
+
                 except Exception as e:
                     print(f"There is an error sending data: {e}")
             else:
