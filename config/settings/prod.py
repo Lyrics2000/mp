@@ -37,6 +37,7 @@ PAYMENT_ADD_USER = "PAYMENT_ADD_USER_PROD"
 PAYMENT_VERIFY_CHECKOUT_ID = "PAYMENT_VERIFY_CHECKOUT_ID_PROD"
 PAYMENT_VERIFY_MANUAL_PAYMENT = "PAYMENT_VERIFY_MANUAL_PAYMENT_PROD"
 C2B_ONLINE_CHECKOUT_CALLBACK_URL = 'https://brtgw.britam.com/mp/payment'
+C2B_ADD_CALLBACK = "PAYMENT_C2B_ADD_CALLBACK_PROD"
 C2B_CONFIRMATION_URL = "https://brtgw.britam.com/mp/payment/api/v1/confirmation_url/"
 C2B_VALIDATE_URL = "https://brtgw.britam.com/mp/payment/api/v1/validation_url/"
 

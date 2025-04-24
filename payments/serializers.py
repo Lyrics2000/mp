@@ -9,11 +9,16 @@ from .models import (
     C2BPaymentsValidation,
     StoreBusinessCode,
     UserRequestsModel,
+    Callbackhanldlers
     
 )
 
 
 
+class CallbackhanldlersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =Callbackhanldlers
+        fields = '__all__' 
 class UserRequestsModelSerializer(serializers.ModelSerializer):
     class Meta:
         model =  UserRequestsModel

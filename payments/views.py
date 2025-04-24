@@ -29,7 +29,8 @@ from config.settings.settings import (
     PAYMENTS_STK_PUSH_BUSINESS,
     PAYMENT_VERIFY_CHECKOUT_ID,
     PAYMENT_ADD_USER,
-    PAYMENT_VERIFY_MANUAL_PAYMENT
+    PAYMENT_VERIFY_MANUAL_PAYMENT,
+    C2B_ADD_CALLBACK
 )
 
 from config.util.c2butils import (
@@ -51,7 +52,8 @@ from .models import (
     C2BPaymentsConfirmation,
     AuthToken,
     OnlineCheckout,
-    UserRequestsModel
+    UserRequestsModel,
+    Callbackhanldlers
 )
 
 from django.views.decorators.csrf import csrf_exempt
@@ -63,7 +65,8 @@ from .serializers import (
     C2BPaymentsValidationSerializer,
     C2BPaymentsConfirmationSerializer,
     StoreBusinessCodeSerializer,
-    UserRequestsModelSerializer
+    UserRequestsModelSerializer,
+    CallbackhanldlersSerializer
 )
 import threading
 from rest_framework.generics import CreateAPIView
@@ -388,7 +391,128 @@ class VerifyManualApiView(APIView):
                 "status":"Failed",
                 "message":"You have no rights for this request"
             },status =  400)      
+
+class AddC2bCallback(APIView):
+    def post(self,request):
+        app =  MicrosoftValidation(request).verify()
+            
+        if app.status_code == 401:
+                return app
+
+        if C2B_ADD_CALLBACK in app.json()['data']['roles']:
+            paybill =  request.data.get("paybill",None)
+            regex =  request.data.get("regex",None)
+            url =  request.data.get("url",None)
+            tyee =  request.data.get("type",None)
+
+
+            if None in [paybill,regex,url,tyee]:
+                return Response({
+                    "status":"Failed",
+                    "message":"Fill all details"
+                },status =  400)
+            
+            if tyee == "CREATE":
+            
+                obj = Callbackhanldlers.objects.create(
+                    paybill = paybill,
+                    regex =  regex,
+                    url =  url
+                 
+                )
+
+                if obj:
+                    dddata = {
+                            "role": C2B_ADD_CALLBACK,
+                            "successfull": True,
+                            "message": f"Callback Handler Created successfully!",
+                            "endpoint": "c2b/callback/handler/"
+                        }
                     
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                    return Response({
+                        "status":"Success",
+                        "message":"Data created",
+                        "data": CallbackhanldlersSerializer(obj).data
+                    },status=201)
+                
+            elif tyee  == "UPDATE":
+                f = Callbackhanldlers.objects.filter(
+                    paybill =  paybill
+                )
+
+                if len(f) > 0:
+                    f[0].regex =  regex
+                    f[0].url =  url
+                
+                    f[0].save()
+                    dddata = {
+                            "role": C2B_ADD_CALLBACK,
+                            "successfull": True,
+                            "message": f"Callback Handler  Updated successfully!",
+                            "endpoint": "c2b/callback/handler/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                    return Response({
+                        "status":"Success",
+                        "message":"updated successfully",
+                        "data": CallbackhanldlersSerializer(f[0]).data
+                    },status=200)
+                
+                else:
+                    dddata = {
+                            "role": C2B_ADD_CALLBACK,
+                            "successfull": False,
+                            "message": f"Paybill {paybill} not found in db",
+                            "endpoint": "c2b/callback/handler/"
+                        }
+                    kk = make_api_request_log_request(request,dddata)
+                    if kk['code'] > 204:
+                            return Response(kk['message'],status = kk['code'])
+                    return Response({
+                        "status":"Failed",
+                        "message":"Paybill not found"
+                    },status =  200)
+
+
+
+
+
+            dddata = {
+                        "role": C2B_ADD_CALLBACK,
+                        "successfull": False,
+                        "message": f"An errror occured while inserting Callback",
+                        "endpoint": "c2b/callback/handler/"
+                    }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                return Response(kk['message'],status = kk['code'])
+            
+            return Response({
+                "status":"Failed",
+                "message":"An error occured"
+            },status =  400)
+
+        else:
+            dddata = {
+                        "role": C2B_ADD_CALLBACK,
+                        "successfull": False,
+                        "message": f"User Doesnt have rights to insert paybill endpoint",
+                        "endpoint": "c2b/callback/handler/"
+                    }
+            kk = make_api_request_log_request(request,dddata)
+            if kk['code'] > 204:
+                return Response(kk['message'],status = kk['code'])
+            
+            return Response({
+                "status":"Failed",
+                "message":"You have no rights for this request"
+            },status =  400)
+
 
 class AddPaybill(APIView):
     def post(self,request):

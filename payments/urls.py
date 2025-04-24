@@ -24,7 +24,8 @@ from .views import (
     CreateBusinessApiView,
     SendSTKPUSHBusinessProcess,
     UserRequestsModelApiView,
-    VerifyManualApiView
+    VerifyManualApiView,
+    AddC2bCallback
     
 )
 
@@ -50,8 +51,9 @@ urlpatterns = [
     path("c2b/register/url/",RegisterURL.as_view()),
     path("c2b/simulate/",SimulateApiView.as_view()),
     path("merchant/post/",RecurringCardsView.as_view()),
+    path("c2b/callback/handler/",AddC2bCallback.as_view()),
     
-     path(
+    path(
         "c2b/confirmation/", C2bConfirmation.as_view(), name="c2b_confirmation"
     ),
     path("c2b/validate/", C2bValidation.as_view(), name="c2b_validation"),
