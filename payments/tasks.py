@@ -32,6 +32,9 @@ from .mpesa import Mpesa
 logger = logging.getLogger(__name__)
 
 
+
+
+
 # @shared_task(name="core.b2c_call")
 def send_b2c_request_task(amount, phone, id):
     """

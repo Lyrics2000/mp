@@ -279,9 +279,11 @@ class C2BPaymentsValidation(models.Model):
     LastName = models.CharField(max_length=50, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     updated_at = models.DateTimeField(auto_now=True,blank=True,null=True)
+    rejected =  models.BooleanField(default=False)
 
     def __repr__(self):
         return f'{self.InvoiceNumber}'
+    
 class StoreBusinessCode(TimestampedModel):
     name  =  models.CharField(max_length=255)
     key =  models.CharField(max_length=255)
@@ -427,7 +429,21 @@ class MpesaRequest(TimestampedModel):
     def __str__(self) -> str:
         return self.phoneNumber
     
+class Callbackhanldlers(TimestampedModel):
+    paybill = models.CharField(max_length=255)
+    regex = models.CharField(max_length=255)
+    url =  models.URLField()
     
+    def __str__(self):
+        return self.user
+    
+class C2BCallbackResponses(TimestampedModel):
+    callbackhandler =  models.ForeignKey(Callbackhanldlers,on_delete=models.CASCADE)
+    sent =  models.BooleanField(default=False)
+    response =  models.TextField()
+
+    def __str__(self):
+        return super().__str__()
 class MpesaCallbackMetaData(TimestampedModel):
     rdb =  models.ForeignKey(MpesaRequest,on_delete =  models.CASCADE,blank=True,null=True)
     name =  models.CharField(max_length =  255)

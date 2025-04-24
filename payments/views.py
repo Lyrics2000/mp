@@ -10,6 +10,9 @@ import json
 import json
 from django.utils.dateparse import parse_datetime
 from .models import CardPaymentsTransactions
+from .utils import (
+      C2BSendMessages
+)
 
 from utils.app import (
       OracleDB
@@ -863,6 +866,10 @@ class C2BConfirmationApiView(CreateAPIView):
             "Result Code": 0,
             "Data": data.data
         }
+
+        app  = C2BSendMessages()
+        app.sendCallbacks(c2bmodel_data)
+        
 
         return Response(c2b_context)
 
