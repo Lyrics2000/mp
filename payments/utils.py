@@ -28,16 +28,16 @@ class C2BSendMessages:
                         "Body": {
                             "stkCallback": {
                                 "MerchantRequestID": "84115-769684-1",
-                                "CheckoutRequestID": i.BillRefNumber,
+                                "CheckoutRequestID": confirmation_obj.BillRefNumber,
                                 "ResultCode": 0,
                                 "ResultDesc": "The service request is processed successfully.",
                                 "CallbackMetadata": {
                                     "Item": [
-                                        {"Name": "Amount", "Value": float(i.TransAmount)},
-                                        {"Name": "MpesaReceiptNumber", "Value": i.TransID},
+                                        {"Name": "Amount", "Value": float(confirmation_obj.TransAmount)},
+                                        {"Name": "MpesaReceiptNumber", "Value": confirmation_obj.TransID},
                                         {"Name": "Balance"},
-                                        {"Name": "TransactionDate", "Value": i.TransTime},
-                                        {"Name": "PhoneNumber", "Value": i.MSISDN}
+                                        {"Name": "TransactionDate", "Value": confirmation_obj.TransTime},
+                                        {"Name": "PhoneNumber", "Value": confirmation_obj.MSISDN}
                                     ]
                                 }
                             }
