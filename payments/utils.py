@@ -23,7 +23,7 @@ class C2BSendMessages:
 
         if len(check_url) > 0:
             for i in check_url:
-                if re.match(rf"{i.regex}", i.BillRefNumber):
+                if re.match(rf"{i.regex}", confirmation_obj.BillRefNumber):
                     data = {
                         "Body": {
                             "stkCallback": {
