@@ -45,7 +45,7 @@ class C2BSendMessages:
                     }
                     try:
                         ap = HttpCalls()
-                        response = ap.post(data, check_url.url)
+                        response = ap.post(data, i.url)
                         
                         try:
                             if response.status_code ==  200:
@@ -53,7 +53,7 @@ class C2BSendMessages:
                                 if json['ResponseCode'] == 0:
 
                                     C2BCallbackResponses.objects.create(
-                                        callbackhandler=check_url,
+                                        callbackhandler=i,
                                         sent=True,
                                         response=response.text
                                     )
