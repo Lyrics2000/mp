@@ -9,6 +9,7 @@ services:
       - ./:/usr/src/britam/payments/app
     ports:
       - 8077:8077
+      
 
   # britam_payment_uat:
   #   build:
